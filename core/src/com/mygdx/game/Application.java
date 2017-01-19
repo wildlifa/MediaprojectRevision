@@ -18,24 +18,23 @@ public class Application extends Game {
 	public SpriteBatch batch;
 	public OrthographicCamera camera;
 	public BitmapFont font;
+	public TestScreen testScreen;
 
 	@Override
 	public void create () {
 
-//		setScreen(new TestScreen(this));
+
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, WIDTH, HEIGHT);
 		batch = new SpriteBatch();
 		font = new BitmapFont();
-
-		this.setScreen(new TestScreen(this));
+		testScreen = new TestScreen(this);
+		this.setScreen(testScreen);
 	}
 
 	@Override
 	public void render () {
-//		update(Gdx.graphics.getDeltaTime());
-//		Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
-//		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
 		super.render();
 
 	}
@@ -43,5 +42,7 @@ public class Application extends Game {
 	@Override
 	public void dispose () {
 		batch.dispose();
+		testScreen.dispose();
+		font.dispose();
 	}
 }
