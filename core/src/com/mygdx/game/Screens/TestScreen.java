@@ -19,6 +19,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Actors.Bochek;
 import com.mygdx.game.Application;
+import com.mygdx.game.Models.LevelModel;
+import com.mygdx.game.Models.WallModel;
 
 import static com.badlogic.gdx.Gdx.input;
 
@@ -42,6 +44,7 @@ public class TestScreen implements Screen {
     private float xForce, yForce;
     private Box2DDebugRenderer b2dr;
 
+    private LevelModel levelModel;
     private Body wall1, wall2, wall3, wall4;
     private Body wall5, wall6, wall7, wall8;
 
@@ -52,7 +55,7 @@ public class TestScreen implements Screen {
 
         world = new World(new Vector2(0f,0f), false);
         b2dr = new Box2DDebugRenderer();
-
+        levelModel = new LevelModel("3.3/111101111");
         bochek = new Bochek(app.WIDTH/6f,app.HEIGHT/4f, this);
 
 
