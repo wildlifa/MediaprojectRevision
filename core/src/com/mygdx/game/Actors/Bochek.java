@@ -20,7 +20,6 @@ public class Bochek {
     private Texture texture;
     private Image image;
     private Body body;
-//    private
 
     public Bochek(float x, float y, final TestScreen screen) {
         this.screen = screen;

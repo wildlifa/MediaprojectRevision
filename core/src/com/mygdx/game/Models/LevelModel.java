@@ -8,6 +8,8 @@ import java.util.Random;
  */
 
 public class LevelModel {
+
+
     private ArrayList<WallModel> horizontalWalls;
     private ArrayList<WallModel> verticalWalls;
     private TileModel[][] tiles;
@@ -20,7 +22,7 @@ public class LevelModel {
         verticalWalls = new ArrayList<WallModel>();
         convertCodeToTileModel(levelCode);
         convertTileModelToWallModel();
-        //printLevelModel();
+        printLevelModel();
     }
 
     private void printLevelModel() {
@@ -155,7 +157,7 @@ public class LevelModel {
                 }
             }
         }
-        horizontalWalls.add(new WallModel(i,j,currentWallSize));
+        horizontalWalls.add(new WallModel(j,i,currentWallSize));
         System.out.println("Added horizontal wall x:" + j + " y:" + i + " Size:" + currentWallSize);
     }
 
@@ -181,7 +183,7 @@ public class LevelModel {
                 }
             }
         }
-        horizontalWalls.add(new WallModel(i,j,currentWallSize));
+        verticalWalls.add(new WallModel(j,i,currentWallSize));
         System.out.println("Added vertical wall x:" + j + " y:" + i + " Size:" + currentWallSize);
     }
 
@@ -217,11 +219,11 @@ public class LevelModel {
         if (horizontalCandidate != verticalCandidate){
             if (horizontalCandidate){
                 tiles[i][j].setHorizontal(true);
-                horizontalWalls.add(new WallModel(i,j,1));
+                horizontalWalls.add(new WallModel(j,i,1));
                 System.out.println("Added horizontal wall x:" + j + " y:" + i + " Size:" + 1);
             }else{
                 tiles[i][j].setHorizontal(false);
-                verticalWalls.add(new WallModel(i,j,1));
+                verticalWalls.add(new WallModel(j,i,1));
                 System.out.println("Added vertical wall x:" + j + " y:" + i + " Size:" + 1);
             }
         }
@@ -282,5 +284,21 @@ public class LevelModel {
                 stringRunner++;
             }
         }
+    }
+
+    public ArrayList<WallModel> getHorizontalWalls() {
+        return horizontalWalls;
+    }
+
+    public ArrayList<WallModel> getVerticalWalls() {
+        return verticalWalls;
+    }
+
+    public int getModelWidth() {
+        return modelWidth;
+    }
+
+    public int getModelHeight() {
+        return modelHeight;
     }
 }

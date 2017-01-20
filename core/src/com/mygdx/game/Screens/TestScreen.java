@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -18,9 +19,12 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Actors.Bochek;
+import com.mygdx.game.Actors.Wall;
 import com.mygdx.game.Application;
 import com.mygdx.game.Models.LevelModel;
 import com.mygdx.game.Models.WallModel;
+
+import java.util.ArrayList;
 
 import static com.badlogic.gdx.Gdx.input;
 
@@ -34,41 +38,52 @@ public class TestScreen implements Screen {
     private static final float PPM = 32f;
     private Application app;
     private Stage stage;
-
+    public Texture wallTexture;
+    private ArrayList<Wall> horizontalWalls;
+    private ArrayList<Wall> verticalWalls;
     private Bochek bochek;
-
-    private Image backgroundImage;
-    private Texture bgTexture;
 
     private World world;
     private float xForce, yForce;
     private Box2DDebugRenderer b2dr;
 
     private LevelModel levelModel;
-    private Body wall1, wall2, wall3, wall4;
-    private Body wall5, wall6, wall7, wall8;
 
     public TestScreen(final Application app){
 
         this.app = app;
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
-
+        wallTexture = new Texture(Gdx.files.internal("hole.jpg"));
         world = new World(new Vector2(0f,0f), false);
         b2dr = new Box2DDebugRenderer();
         levelModel = new LevelModel("3.3/111101111");
         bochek = new Bochek(app.WIDTH/6f,app.HEIGHT/4f, this);
+        horizontalWalls = new ArrayList<Wall>();
+        verticalWalls = new ArrayList<Wall>();
+        wallTexture = new Texture(Gdx.files.internal("woodTexture.jpg"));
+        generateLevel(levelModel);
 
+    }
 
-        wall1 = createWall(0f,app.HEIGHT/2f, 30.f, app.HEIGHT);
-        wall2 = createWall(app.WIDTH,app.HEIGHT/2f, 30.f, app.HEIGHT);
+    private void generateLevel(LevelModel levelModel) {
+        for (int i = 0; i < levelModel.getHorizontalWalls().size();i++){
+            horizontalWalls.add(new Wall(levelModel.getHorizontalWalls().get(i).getPositionX(),
+                                 levelModel.getHorizontalWalls().get(i).getPositionY(),
+                                 levelModel.getHorizontalWalls().get(i).getLength(),
+                                 true,
+                                 this)
+            );
 
-        wall3 = createWall(app.WIDTH/2f, 0f, app.WIDTH, 30.f);
-        wall4 = createWall(app.WIDTH/2f,app.HEIGHT, app.WIDTH, 30.f);
+        }
 
-        wall5 = createWall(app.WIDTH/4f, app.HEIGHT/3f, 100.f, app.HEIGHT);
-        wall6 = createWall(app.WIDTH/4f*3f, app.HEIGHT/3f, 100.f, app.HEIGHT);
-        wall7 = createWall(app.WIDTH/2, app.HEIGHT/4f*3f, 100.f, app.HEIGHT);
-
+        for (int i = 0; i < levelModel.getVerticalWalls().size();i++){
+            verticalWalls.add(new Wall(levelModel.getVerticalWalls().get(i).getPositionX(),
+                               levelModel.getVerticalWalls().get(i).getPositionY(),
+                               levelModel.getVerticalWalls().get(i).getLength(),
+                               false,
+                               this)
+            );
+        }
     }
 
     public World getWorld() {
@@ -81,15 +96,13 @@ public class TestScreen implements Screen {
 
         Gdx.input.setInputProcessor(stage);
 
-        bgTexture = new Texture(Gdx.files.internal("hole.jpg"));
-        backgroundImage = new Image(bgTexture);
-
-        backgroundImage.addAction(Actions.alpha(0.5f, 1));
-        backgroundImage.setPosition(0f,0f);
-
-        stage.addActor(backgroundImage);
         stage.addActor(bochek.getImage());
-
+        for (int i = 0; i <horizontalWalls.size();i++){
+            stage.addActor(horizontalWalls.get(i).getImage());
+        }
+        for (int i = 0; i <verticalWalls.size();i++){
+            stage.addActor(verticalWalls.get(i).getImage());
+        }
     }
 
 
@@ -103,13 +116,10 @@ public class TestScreen implements Screen {
         Gdx.gl.glClearColor(0f,0f,0f,1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        b2dr.render(world, app.camera.combined.scl(PPM));
+        //b2dr.render(world, app.camera.combined.scl(PPM));
 
         stage.draw();
 
-//        app.batch.begin();
-//        app.font.draw(app.batch,"TestScreen", 300,300);
-//        app.batch.end();
 
     }
 
@@ -127,7 +137,11 @@ public class TestScreen implements Screen {
         handleInput(delta);
 
         bochek.update(xForce, yForce);
-
+        System.out.println("Setting camera to position:");
+        System.out.println("X " + bochek.getBody().getPosition().x);
+        System.out.println("Y " + bochek.getBody().getPosition().y);
+        app.camera.position.set(bochek.getBody().getPosition().x*PPM, bochek.getBody().getPosition().y*PPM,0f);
+        app.camera.update();
         world.step(delta,6,2);
         stage.act(delta);
 
@@ -155,28 +169,20 @@ public class TestScreen implements Screen {
 
     @Override
     public void dispose() {
-        bgTexture.dispose();
+        for (int i = 0; i <horizontalWalls.size();i++){
+            horizontalWalls.get(i).dispose();
+        }
+        for (int i = 0; i <verticalWalls.size();i++){
+            verticalWalls.get(i).dispose();
+        }
         world.dispose();
         b2dr.dispose();
         bochek.dispose();
+        stage.dispose();
+
+
     }
 
-
-
-    private Body createWall(float x, float y, float wallWidth, float wallHeight) {
-        Body pBody;
-        BodyDef def = new BodyDef();
-        def.type = BodyDef.BodyType.StaticBody;
-        def.position.set(x/PPM, y/PPM);
-        def.fixedRotation = true;
-        pBody = world.createBody(def);
-
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(wallWidth/2/PPM, wallHeight/2/PPM);
-        pBody.createFixture(shape, 1.0f);
-        shape.dispose();
-        return pBody;
-    }
 
 //    private float getAngleFromForce(float xForce, float yForce){
 //        float angle = 0.0f;
