@@ -18,6 +18,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Application;
 
+import java.util.ArrayList;
+
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
@@ -41,6 +43,8 @@ public class MenuScreen implements Screen {
     private Table levelSelectionTable;
     private TextButton playButton1, playButton2;
     private Menustatus menustatus;
+    private ArrayList<TextButton> levelButtons;
+
 
     private ScrollPane levelScrollPane;
 
@@ -114,7 +118,7 @@ public class MenuScreen implements Screen {
         };
 
         mainMenuButtonTable = new Table();
-        mainMenuButtonTable.debug();
+//        mainMenuButtonTable.debug();
         mainMenuButtonTable.setWidth(stage.getWidth()/2);
         mainMenuButtonTable.setHeight(stage.getHeight());
         mainMenuButtonTable.setPosition(stage.getWidth()*1.5f,0f);
@@ -151,20 +155,58 @@ public class MenuScreen implements Screen {
     }
 
     private void prepareLevelSelection() {
+
         levelSelectionTable = new Table();
-        levelSelectionTable.debug();
+//        levelSelectionTable.debug();
         levelSelectionTable.setWidth(stage.getWidth()/2);
         levelSelectionTable.setHeight(stage.getHeight());
 
         levelSelectionTable.align(Align.center | Align.top);
-        levelSelectionTable.padTop(100f);
+//        levelSelectionTable.padTop(20f);
 
         levelScrollPane = new ScrollPane(levelSelectionTable);
         levelScrollPane.setSize(stage.getWidth()/2,stage.getHeight());
-        levelScrollPane.debug();
+//        levelScrollPane.debug();
         stage.addActor(levelScrollPane);
+        loadLevelSelectionButtons();
         levelScrollPane.setPosition(stage.getWidth()*1.5f,0f);
         levelScrollPane.addAction(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out));
+
+    }
+
+    private void loadLevelSelectionButtons() {
+
+        levelButtons = new ArrayList<TextButton>();
+
+
+        for (int i=0; i < 20; i++){
+
+            levelButtons.add(new TextButton("Level : " + Integer.toString(i+1),mySkin));
+
+        }
+
+        int rowrunner = 0;
+
+        for (int i=0; i < levelButtons.size(); i++){
+            final int index = i;
+            levelButtons.get(i).addListener(new ClickListener(){
+                @Override
+                public void clicked(InputEvent event, float x, float y){
+                    System.out.println(index+1);
+                }
+            });
+
+        }
+
+        for (int i=0; i < levelButtons.size(); i++){
+            levelSelectionTable.add(levelButtons.get(i)).size(150,150).pad(20);
+            rowrunner++;
+            if (rowrunner == 3){
+                rowrunner = 0;
+                levelSelectionTable.row();
+            }
+        }
+
     }
 
     private void prepareFamilyEntrance() {
