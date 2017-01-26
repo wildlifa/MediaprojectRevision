@@ -42,13 +42,14 @@ public class LoadingScreen implements Screen {
         app.assets.load("logo.png", Texture.class);
         app.assets.load("escape.png", Texture.class);
         app.assets.load("music2.mp3", Music.class);
-
-
         app.assets.load("familyTexture.png", Texture.class);
         app.assets.load("white.png", Texture.class);
         app.assets.load("kolobublik.png", Texture.class);
         app.assets.load("hriusha.png", Texture.class);
         app.assets.load("andreiBear.png", Texture.class);
+        app.assets.load("introBochek.png", Texture.class);
+        app.assets.load("introEscape.png", Texture.class);
+        app.assets.load("blackBackground.png", Texture.class);
     }
 
     @Override
