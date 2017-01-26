@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Application;
+import com.mygdx.game.Models.LevelInfo;
 
 import java.util.ArrayList;
 
@@ -31,7 +33,7 @@ import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
 
 public class MenuScreen implements Screen {
 
-    private enum Menustatus {MAINMENU, LEVELSELECTION, STARTINGLEVEL}
+    private enum Menustatus {MAIN_MENU, SELECT_MENU, LEVEL_MENU}
     private final Application app;
     private Stage stage;
     private Skin mySkin;
@@ -41,9 +43,13 @@ public class MenuScreen implements Screen {
     private Image backgroundImage;
     private Table mainMenuButtonTable;
     private Table levelSelectionTable;
-    private TextButton playButton1, playButton2;
+    private Table levelTable;
+    private TextButton playButton1, playButton2, levelStartButton;
     private Menustatus menustatus;
     private ArrayList<TextButton> levelButtons;
+    private Label levelLabel;
+    private boolean inputEnabled;
+    private LevelInfo levelInfo;
 
 
     private ScrollPane levelScrollPane;
@@ -53,15 +59,17 @@ public class MenuScreen implements Screen {
         mySkin = new Skin(Gdx.files.internal("clean-crispy-ui.json"));
         this.app = app;
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
-        menustatus = Menustatus.MAINMENU;
+        menustatus = Menustatus.MAIN_MENU;
+        inputEnabled = false;
+        System.out.println("------------------------------------Disabling input! Now: " + inputEnabled);
 
     }
 
     @Override
     public void show() {
         prepareCameraAndInput();
-        prepareFamilyEntrance();
-        prepareMainMenuEntrance();
+        bringFamily();
+        bringMainMenu();
     }
 
 
@@ -80,108 +88,101 @@ public class MenuScreen implements Screen {
 
     private void handleInput(float delta) {
         switch (menustatus){
-            case MAINMENU:
-                if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+            case MAIN_MENU:
+                if(inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+                    inputEnabled = false;
                     System.out.println("Exiting");
                     Gdx.app.exit();
                 }
                 break;
-            case LEVELSELECTION:
-                if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
-                    System.out.println("handled back key");
-                    prepareTransitionFromLevelSelection();
+            case SELECT_MENU:
+                if(inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+                    inputEnabled = false;
+                    removeSelectMenuBringMainMenu();
+                }
+                break;
+            case LEVEL_MENU:
+                if(inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+                    inputEnabled = false;
+                    removeLevelMenuBringSelectMenu();
                 }
                 break;
         }
     }
 
-    private void prepareTransitionFromLevelSelection() {
+    private void removeLevelMenuBringSelectMenu() {
+        final Runnable transitionFromLevelStart = new Runnable() {
+            @Override
+            public void run() {
+                menustatus=Menustatus.SELECT_MENU;
+                bringSelectMenu();
+            }
+        };
+        levelTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.3f),run(transitionFromLevelStart)));
+    }
+
+    private void removeSelectMenuBringMainMenu() {
         final Runnable transitionFromLevelSelection = new Runnable() {
             @Override
             public void run() {
-                menustatus=Menustatus.MAINMENU;
-                prepareMainMenuEntrance();
+                menustatus=Menustatus.MAIN_MENU;
+                bringMainMenu();
             }
         };
 
         levelScrollPane.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.3f),run(transitionFromLevelSelection)));
     }
 
-    private void prepareMainMenuEntrance() {
 
-        final Runnable transitionToLevelSelection = new Runnable() {
-            @Override
-            public void run() {
-                menustatus = Menustatus.LEVELSELECTION;
-                prepareLevelSelection();
-            }
-        };
+    private void bringLevelMenu() {
+        inputEnabled = true;
 
-        mainMenuButtonTable = new Table();
-//        mainMenuButtonTable.debug();
-        mainMenuButtonTable.setWidth(stage.getWidth()/2);
-        mainMenuButtonTable.setHeight(stage.getHeight());
-        mainMenuButtonTable.setPosition(stage.getWidth()*1.5f,0f);
-        mainMenuButtonTable.align(Align.center | Align.top);
-        mainMenuButtonTable.padTop(100f);
-        stage.addActor(mainMenuButtonTable);
+        levelTable = new Table();
+        levelTable.debug();
+        levelTable.setSize(stage.getWidth()/2,stage.getHeight());
+        levelTable.align(Align.center | Align.top);
+        stage.addActor(levelTable);
 
-        playButton1 = new TextButton("PLAY1",mySkin);
-        playButton2 = new TextButton("PLAY2",mySkin);
-
-        playButton1.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y){
-                mainMenuButtonTable.addAction(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In));
+        levelStartButton = new TextButton("START", mySkin);
+        levelStartButton.getLabel().setFontScale(4f);
+        levelLabel = new Label("some text",mySkin);
+        levelLabel.setFontScale(4f);
+        levelTable.add(levelLabel).size(600,500).pad(20);
+        levelTable.row();
+        levelTable.add(levelStartButton).size(600,100).pad(20);
+        levelTable.setPosition(stage.getWidth()*1.5f,0f);
 
 
-                mainMenuButtonTable.addAction(sequence(delay(0.7f),moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
-
-            }
-        });
-
-        playButton2.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y){
-                mainMenuButtonTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.3f),run(transitionToLevelSelection)));
-            }
-        });
-
-        mainMenuButtonTable.add(playButton1).size(450f,150f).padBottom(200f);
-        mainMenuButtonTable.row();
-        mainMenuButtonTable.add(playButton2).size(450f,150f);
-
-        mainMenuButtonTable.addAction(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out));
+        levelTable.addAction(sequence(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
     }
 
-    private void prepareLevelSelection() {
+    private void bringSelectMenu() {
+        inputEnabled = true;
+
 
         levelSelectionTable = new Table();
-//        levelSelectionTable.debug();
-        levelSelectionTable.setWidth(stage.getWidth()/2);
-        levelSelectionTable.setHeight(stage.getHeight());
-
+        levelSelectionTable.setSize(stage.getWidth()/2,stage.getHeight());
         levelSelectionTable.align(Align.center | Align.top);
-//        levelSelectionTable.padTop(20f);
 
         levelScrollPane = new ScrollPane(levelSelectionTable);
         levelScrollPane.setSize(stage.getWidth()/2,stage.getHeight());
-//        levelScrollPane.debug();
+
         stage.addActor(levelScrollPane);
-        loadLevelSelectionButtons();
+        loadSelectMenuButtons();
         levelScrollPane.setPosition(stage.getWidth()*1.5f,0f);
-        levelScrollPane.addAction(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out));
+        levelScrollPane.addAction(sequence(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
+
 
     }
 
-    private void loadLevelSelectionButtons() {
+    private void loadSelectMenuButtons() {
 
         levelButtons = new ArrayList<TextButton>();
 
 
         for (int i=0; i < 20; i++){
 
-            levelButtons.add(new TextButton("Level : " + Integer.toString(i+1),mySkin));
+            levelButtons.add(new TextButton("L : " + Integer.toString(i+1),mySkin));
 
         }
 
@@ -189,10 +190,14 @@ public class MenuScreen implements Screen {
 
         for (int i=0; i < levelButtons.size(); i++){
             final int index = i;
+            levelButtons.get(i).getLabel().setFontScale(4);
             levelButtons.get(i).addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y){
-                    System.out.println(index+1);
+                    if (inputEnabled){
+                        System.out.println(index+1);
+                        removeSelectMenuBringLevelMenu();
+                    }
                 }
             });
 
@@ -209,7 +214,20 @@ public class MenuScreen implements Screen {
 
     }
 
-    private void prepareFamilyEntrance() {
+    private void removeSelectMenuBringLevelMenu() {
+        inputEnabled = false;
+        final Runnable transitionFromLevelSelection = new Runnable() {
+            @Override
+            public void run() {
+                menustatus=Menustatus.LEVEL_MENU;
+                bringLevelMenu();
+            }
+        };
+
+        levelScrollPane.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.3f),run(transitionFromLevelSelection)));
+    }
+
+    private void bringFamily() {
         backgroundTexture = app.assets.get("white.png", Texture.class);
         familyTexture = app.assets.get("familyTexture.png", Texture.class);
         backgroundImage = new Image(backgroundTexture);
@@ -222,11 +240,57 @@ public class MenuScreen implements Screen {
     }
 
     private void prepareCameraAndInput() {
+        inputEnabled = false;
         app.camera.position.set(app.WIDTH/2f,app.HEIGHT/2f,0f);
         app.camera.update();
         Gdx.input.setInputProcessor(stage);
     }
 
+    private void bringMainMenu(){
+        inputEnabled = true;
+        final Runnable transitionToSelectLevel = new Runnable() {
+            @Override
+            public void run() {
+                menustatus = Menustatus.SELECT_MENU;
+                bringSelectMenu();
+            }
+        };
+
+//        final Runnable enableInput = new Runnable() {
+//            @Override
+//            public void run() {
+//                inputEnabled = true;
+//                System.out.println("--------------------------Enabling input! Now: " + inputEnabled);
+//            }
+//        };
+
+        mainMenuButtonTable = new Table();
+        mainMenuButtonTable.setSize(stage.getWidth()/2,stage.getHeight());
+        mainMenuButtonTable.setPosition(stage.getWidth()*1.5f,0f);
+        mainMenuButtonTable.align(Align.center | Align.top);
+        mainMenuButtonTable.padTop(100f);
+        stage.addActor(mainMenuButtonTable);
+
+        playButton1 = new TextButton("PLAY1",mySkin);
+        playButton2 = new TextButton("TEMP",mySkin);
+        playButton1.getLabel().setFontScale(4);
+        playButton2.getLabel().setFontScale(4);
+
+        playButton1.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                if(inputEnabled){
+                    inputEnabled = false;
+                    mainMenuButtonTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.3f),run(transitionToSelectLevel)));
+                }
+            }
+        });
+
+        mainMenuButtonTable.add(playButton1).size(450f,150f).padBottom(200f);
+        mainMenuButtonTable.row();
+        mainMenuButtonTable.add(playButton2).size(450f,150f);
+        mainMenuButtonTable.addAction(sequence(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
+    }
 
     @Override
     public void resize(int width, int height) {
