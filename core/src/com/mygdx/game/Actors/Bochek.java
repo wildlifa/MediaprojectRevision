@@ -99,7 +99,7 @@ public class Bochek {
 
     public void update(float xForce, float yForce, float delta){
         leftUntilRotation = leftUntilRotation - delta;
-        body.setLinearVelocity(body.getLinearVelocity().add(xForce/2.0f/PPM,yForce/2.0f/PPM));
+        body.setLinearVelocity(body.getLinearVelocity().add(xForce/1.5f/PPM,yForce/1.5f/PPM));
         runAnimation(delta);
 
         image0.addAction(Actions.moveTo(body.getPosition().x*PPM, body.getPosition().y*PPM));
@@ -111,7 +111,7 @@ public class Bochek {
         image3.addAction(Actions.moveTo(body.getPosition().x*PPM, body.getPosition().y*PPM));
         image3.addAction(Actions.moveBy(-(image3.getWidth() / 2),-(image3.getHeight() / 2)));
 
-        if (leftUntilRotation < 0){
+        if (leftUntilRotation < 0 && (getAbsoluteforce(xForce, yForce) > 3.5f)){
             image0.addAction(Actions.rotateTo(90f+getAngleFromForces(xForce, yForce)));
             image1.addAction(Actions.rotateTo(90f+getAngleFromForces(xForce, yForce)));
             image2.addAction(Actions.rotateTo(90f+getAngleFromForces(xForce, yForce)));
@@ -136,7 +136,7 @@ public class Bochek {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.5f;
+        fixtureDef.friction = 0.2f;
         fixtureDef.restitution = 0.3f; // Make it bounce a little bit
 
         pBody.createFixture(fixtureDef);
@@ -236,6 +236,10 @@ public class Bochek {
     public float getAbsoluteVelocity(float x, float y){
         float tempVelocity = (float) Math.sqrt(x*x+y*y);
         return tempVelocity;
+    }
+    public float getAbsoluteforce(float x, float y){
+        float tempForce = (float) Math.sqrt(x*x+y*y);
+        return tempForce;
     }
 
     public void dispose(){

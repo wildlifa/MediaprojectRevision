@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -49,7 +50,6 @@ public class MenuScreen implements Screen {
     private Menustatus menustatus;
     private ArrayList<TextButton> levelButtons;
     private Label levelLabel;
-    private boolean inputEnabled;
     private LevelInfo levelInfo;
 
 
@@ -61,13 +61,14 @@ public class MenuScreen implements Screen {
         this.app = app;
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
         menustatus = Menustatus.MAIN_MENU;
-        inputEnabled = false;
-        System.out.println("------------------------------------Disabling input! Now: " + inputEnabled);
+        app.inputEnabled = false;
+
 
     }
 
     @Override
     public void show() {
+        System.out.println("---------------------------Showing Menu Screen");
         prepareCameraAndInput();
         bringFamily();
         bringMainMenu();
@@ -90,21 +91,22 @@ public class MenuScreen implements Screen {
     private void handleInput(float delta) {
         switch (menustatus){
             case MAIN_MENU:
-                if(inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
-                    inputEnabled = false;
+                if(app.inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+                    app.inputEnabled = false;
                     System.out.println("Exiting");
                     Gdx.app.exit();
                 }
                 break;
             case SELECT_MENU:
-                if(inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
-                    inputEnabled = false;
+                if(app.inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+                    app.inputEnabled = false;
                     removeSelectMenuBringMainMenu();
                 }
+
                 break;
             case LEVEL_MENU:
-                if(inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
-                    inputEnabled = false;
+                if(app.inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+                    app.inputEnabled = false;
                     removeLevelMenuBringSelectMenu();
                 }
                 break;
@@ -136,14 +138,14 @@ public class MenuScreen implements Screen {
 
 
     private void bringLevelMenu() {
-        inputEnabled = true;
+        app.inputEnabled = true;
         levelInfo = new LevelInfo(1,300,200,"some dude", true);
 
         final Runnable transitionToPlayScreen = new Runnable() {
             @Override
             public void run() {
                 menustatus=Menustatus.MAIN_MENU;
-                app.setScreen(app.menuScreen);
+                app.setScreen(app.testScreen);
             }
         };
 
@@ -157,8 +159,8 @@ public class MenuScreen implements Screen {
         levelStartButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){
-                if(inputEnabled){
-                    inputEnabled = false;
+                if(app.inputEnabled){
+                    app.inputEnabled = false;
                     removeFamily();
                     backgroundImage.addAction(fadeOut(0.3f));
                     levelTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.3f),run(transitionToPlayScreen)));
@@ -169,6 +171,7 @@ public class MenuScreen implements Screen {
         levelLabel = new Label(levelInfo.getString(),mySkin);
         levelLabel.setFontScale(4f);
         levelLabel.setAlignment(Align.center | Align.center);
+
         levelTable.add(levelLabel).size(600,500).pad(20);
         levelTable.row();
         levelTable.add(levelStartButton).size(450,110);
@@ -179,7 +182,7 @@ public class MenuScreen implements Screen {
     }
 
     private void bringSelectMenu() {
-        inputEnabled = true;
+        app.inputEnabled = true;
 
 
         levelSelectionTable = new Table();
@@ -216,7 +219,7 @@ public class MenuScreen implements Screen {
             levelButtons.get(i).addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y){
-                    if (inputEnabled){
+                    if (app.inputEnabled){
                         System.out.println(index+1);
                         removeSelectMenuBringLevelMenu();
                     }
@@ -237,7 +240,7 @@ public class MenuScreen implements Screen {
     }
 
     private void removeSelectMenuBringLevelMenu() {
-        inputEnabled = false;
+        app.inputEnabled = false;
         final Runnable transitionFromLevelSelection = new Runnable() {
             @Override
             public void run() {
@@ -257,6 +260,8 @@ public class MenuScreen implements Screen {
         stage.addActor(backgroundImage);
         stage.addActor(familyImage);
         backgroundImage.setPosition(0f,0f);
+        backgroundImage.addAction(Actions.alpha(0f));
+        backgroundImage.addAction(Actions.fadeIn(0.2f));
         familyImage.setPosition(-familyImage.getWidth(),-familyImage.getHeight());
         familyImage.addAction(moveTo(0,0,1f, Interpolation.pow5Out));
     }
@@ -266,7 +271,7 @@ public class MenuScreen implements Screen {
     }
 
     private void prepareCameraAndInput() {
-        inputEnabled = false;
+        app.inputEnabled = false;
         menustatus = Menustatus.MAIN_MENU;
         app.camera.position.set(app.WIDTH/2f,app.HEIGHT/2f,0f);
         app.camera.update();
@@ -274,7 +279,7 @@ public class MenuScreen implements Screen {
     }
 
     private void bringMainMenu(){
-        inputEnabled = true;
+        app.inputEnabled = true;
         final Runnable transitionToSelectLevel = new Runnable() {
             @Override
             public void run() {
@@ -297,7 +302,8 @@ public class MenuScreen implements Screen {
         mainMenuButtonTable.align(Align.center | Align.top);
         mainMenuButtonTable.padTop(150f);
         stage.addActor(mainMenuButtonTable);
-        playButton1 = new TextButton("PLAY1",mySkin);
+
+        playButton1 = new TextButton("PLAY",mySkin);
         playButton2 = new TextButton("TEMP",mySkin);
         playButton1.getLabel().setFontScale(4);
         playButton2.getLabel().setFontScale(4);
@@ -305,8 +311,8 @@ public class MenuScreen implements Screen {
         playButton1.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){
-                if(inputEnabled){
-                    inputEnabled = false;
+                if(app.inputEnabled){
+                    app.inputEnabled = false;
                     mainMenuButtonTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.3f),run(transitionToSelectLevel)));
                 }
             }

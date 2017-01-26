@@ -37,6 +37,8 @@ public class TestScreen implements Screen {
     private final Application app;
     private boolean shouldResetPosition;
 
+    private Hud hud;
+
     private Stage stage;
     public Texture wallTexture;
 
@@ -51,11 +53,12 @@ public class TestScreen implements Screen {
     private SimpleModel simpleModel;
 
     public TestScreen(final Application app){
-
+        this.app = app;
+        hud = new Hud(app.batch);
         shouldResetPosition = false;
         FileHandle file = Gdx.files.internal("kek.txt");
         String lvlCode = file.readString();
-        this.app = app;
+
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
 
         world = new World(new Vector2(0f,0f), false);
@@ -117,7 +120,7 @@ public class TestScreen implements Screen {
         System.out.println("show Testscreen");
 
         Gdx.input.setInputProcessor(stage);
-
+        app.inputEnabled = true;
         stage.addActor(escape.getImage());
         stage.addActor(bochek.getImage0());
         stage.addActor(bochek.getImage1());
@@ -144,6 +147,8 @@ public class TestScreen implements Screen {
 //        b2dr.render(world, app.camera.combined.scl(PPM));
 
         stage.draw();
+        app.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+        hud.stage.draw();
 
 
 
@@ -155,11 +160,11 @@ public class TestScreen implements Screen {
             xForce = -Gdx.input.getPitch();
             yForce = Gdx.input.getRoll();
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
-            app.setScreen(app.menuScreen);
+        if(app.inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+            app.setScreen(app.pauseScreen);
         } else {
-            if(Gdx.input.justTouched()){
-                app.setScreen(app.menuScreen);
+            if(app.inputEnabled && Gdx.input.justTouched()){
+                app.setScreen(app.pauseScreen);
             }
         }
     }
@@ -169,11 +174,11 @@ public class TestScreen implements Screen {
 
         handleInput(delta);
         if (shouldResetPosition){
-            bochek.getBody().setLinearVelocity(0f,0f);
-            bochek.getBody().setTransform(simpleModel.getStartX()*tempScale/PPM,simpleModel.getStartY()*tempScale/PPM,0f);
-            bochek.getBody().setLinearVelocity(0f,0f);
-            shouldResetPosition = false;
-            app.setScreen(app.menuScreen);
+//            bochek.getBody().setLinearVelocity(0f,0f);
+//            bochek.getBody().setTransform(simpleModel.getStartX()*tempScale/PPM,simpleModel.getStartY()*tempScale/PPM,0f);
+//            bochek.getBody().setLinearVelocity(0f,0f);
+//            shouldResetPosition = false;
+            app.setScreen(app.finishScreen);
         }
         bochek.update(xForce, yForce, delta);
         app.camera.position.set(bochek.getBody().getPosition().x*PPM, bochek.getBody().getPosition().y*PPM,0f);

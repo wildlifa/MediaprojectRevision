@@ -21,7 +21,7 @@ public class LevelInfo {
 
     public String getString() {
         if (isUnlocked) {
-            String tempString = "Level:" + levelID + "\n" + "Own Record:\n" + personalBestTime + "\nWorld Record:\n" + worldBestTime + "\n by " + worldBestPlayer;
+            String tempString = "Level:" + levelID + "\n" + "Personal Record:\n" + personalBestTime + "\nWorld Record:\n" + worldBestTime + "\n by " + worldBestPlayer;
             return tempString;
         } else {
             String tempString = "(LOCKED)\n" + "Level:" + levelID + "\n" + "World Record:\n" + worldBestTime + "\n by " + worldBestPlayer;
