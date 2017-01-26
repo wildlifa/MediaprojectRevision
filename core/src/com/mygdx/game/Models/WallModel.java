@@ -6,12 +6,12 @@ package com.mygdx.game.Models;
 
 public class WallModel {
     private int positionX, positionY;
-    private int length;
 
-    public WallModel(int x, int y, int length){
+
+    public WallModel(int x, int y){
         this.positionX = x;
         this.positionY = y;
-        this.length = length;
+
     }
 
     public int getPositionX() {
@@ -22,7 +22,5 @@ public class WallModel {
         return positionY;
     }
 
-    public int getLength() {
-        return length;
-    }
+
 }

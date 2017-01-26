@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Created by andrei on 19.01.2017.
+ * Created by andrei on 23.01.2017.
  */
 
 public class LevelModel {
@@ -12,293 +12,120 @@ public class LevelModel {
 
     private ArrayList<WallModel> horizontalWalls;
     private ArrayList<WallModel> verticalWalls;
-    private TileModel[][] tiles;
     private int modelWidth;
     private int modelHeight;
 
+    private Position startPosition, endPosition;
+    private String tileCode;
 
     public LevelModel(String levelCode){
+        tileCode = "";
+        modelWidth = 0;
+        modelHeight = 0;
         horizontalWalls = new ArrayList<WallModel>();
         verticalWalls = new ArrayList<WallModel>();
-        convertCodeToTileModel(levelCode);
-        convertTileModelToWallModel();
-        printLevelModel();
+        convertCodeToModel(levelCode);
+//        printLevel();
     }
 
-    private void printLevelModel() {
-        System.out.println("Horizontal walls:");
-        for(WallModel wall : horizontalWalls){
-            System.out.println(wall.getPositionX());
-            System.out.println(wall.getPositionY());
-            System.out.println(wall.getLength());
-            System.out.println("-----------------------------");
-        }
-        System.out.println("Vertical walls:");
-        for(WallModel wall : verticalWalls){
-            System.out.println(wall.getPositionX());
-            System.out.println(wall.getPositionY());
-            System.out.println(wall.getLength());
-            System.out.println("-----------------------------");
-        }
-        System.out.println("Done Printing");
-    }
+    private void printLevel() {
+        System.out.println("Printing horizontal walls:");
+        for (int i = 0; i < horizontalWalls.size(); i++){
+            System.out.println(horizontalWalls.get(i).getPositionX() + " " + horizontalWalls.get(i).getPositionY());
 
-    private void convertTileModelToWallModel() {
-        for (int i = 0; i < modelHeight; i++){
-            for (int j = 0; j < modelWidth; j++){
-
-                if (!tiles[i][j].isAddedToWall() && (tiles[i][j].getTileType() == TileModel.TileType.WALL)){
-                    generateNewWall(i, j);
-                }
-            }
+        }
+        System.out.println("Printing vertical walls:");
+        for (int i = 0; i < verticalWalls.size(); i++){
+            System.out.println(verticalWalls.get(i).getPositionX() + " " + verticalWalls.get(i).getPositionY());
         }
     }
 
-    private void generateNewWall(int i, int j) {
-        boolean rightNeighbourIsCandidate = false;
-        boolean bottomNeighbourIsCandidate = false;
-        if (j < modelWidth-1){
-            if(getRightNeighbour(i,j).getTileType() == TileModel.TileType.WALL){
-                rightNeighbourIsCandidate = true;
-            }
-        }
-        if (i < modelHeight-1){
-            if(getBottomNeighbour(i,j).getTileType() == TileModel.TileType.WALL){
-                bottomNeighbourIsCandidate = true;
-            }
-        }
-        if ((!rightNeighbourIsCandidate) && (!bottomNeighbourIsCandidate)){
-            buildSoloWall(i,j);
-        }
+    private void convertCodeToModel(String levelCode) {
 
-        if ((rightNeighbourIsCandidate) && (!bottomNeighbourIsCandidate)){
-            buildHorizontalWall(i,j);
-        }
-
-        if ((!rightNeighbourIsCandidate) && bottomNeighbourIsCandidate){
-            buildVerticalWall(i,j);
-        }
-
-        if (rightNeighbourIsCandidate && bottomNeighbourIsCandidate){
-            buildSpecialWall(i,j);
-        }
-
-    }
-
-    private void buildSpecialWall(int i, int j) {
-        boolean horizontalCandidate = false;
-        boolean verticalCandidate = false;
-        tiles[i][j].setLeader(true);
-        tiles[i][j].setAddedToWall(true);
-
-        if (i>0){
-            if(getTopNeighbour(i,j).getTileType() == TileModel.TileType.WALL){
-                if(getTopNeighbour(i,j).isAddedToWall()){
-                    if(getTopNeighbour(i,j).isHorizontal()){
-                        verticalCandidate = true;
-                    }else{
-                        horizontalCandidate = true;
-                    }
-                }
-            }
-        }
-
-        if (j>0){
-            if(getLeftNeighbour(i,j).getTileType() == TileModel.TileType.WALL){
-                if(getLeftNeighbour(i,j).isAddedToWall()){
-                    if(getLeftNeighbour(i,j).isHorizontal()){
-                        verticalCandidate = true;
-                    }else{
-                        horizontalCandidate = true;
-                    }
-                }
-            }
-        }
-
-        if (horizontalCandidate != verticalCandidate){
-            if (horizontalCandidate){
-                buildHorizontalWall(i,j);
-            }else{
-                buildVerticalWall(i,j);
-            }
-        }
-
-        if (horizontalCandidate == verticalCandidate){
-            Random generator = new Random();
-            int r = generator.nextInt(2);
-            if (r==0){
-                buildHorizontalWall(i,j);
-            }else{
-                tiles[i][j].setHorizontal(false);
-                buildVerticalWall(i,j);
-            }
-        }
-    }
-
-    private void buildHorizontalWall(int i, int j) {
-        tiles[i][j].setLeader(true);
-        tiles[i][j].setAddedToWall(true);
-        tiles[i][j].setHorizontal(true);
-        boolean possibleToExpand = true;
-        Random generator = new Random();
-        int maxWallSize = generator.nextInt(3)+3;
-        int supremeWallSize = modelWidth - j;
-        int wallRunner = j;
-        int currentWallSize = 1;
-        while ((currentWallSize < supremeWallSize) && (currentWallSize < maxWallSize) && possibleToExpand){
-            possibleToExpand = false;
-            wallRunner++;
-            if(tiles[i][wallRunner].getTileType()== TileModel.TileType.WALL){
-                if(!tiles[i][wallRunner].isAddedToWall()){
-                    tiles[i][wallRunner].setAddedToWall(true);
-                    tiles[i][wallRunner].setHorizontal(true);
-                    possibleToExpand = true;
-                    currentWallSize++;
-                }
-            }
-        }
-        horizontalWalls.add(new WallModel(j,i,currentWallSize));
-        System.out.println("Added horizontal wall x:" + j + " y:" + i + " Size:" + currentWallSize);
-    }
-
-    private void buildVerticalWall(int i, int j) {
-        tiles[i][j].setLeader(true);
-        tiles[i][j].setAddedToWall(true);
-        tiles[i][j].setHorizontal(false);
-        boolean possibleToExpand = true;
-        Random generator = new Random();
-        int maxWallSize = generator.nextInt(3)+3;
-        int supremeWallSize = modelHeight - i;
-        int wallRunner = i;
-        int currentWallSize = 1;
-        while ((currentWallSize < supremeWallSize) && (currentWallSize < maxWallSize) && possibleToExpand){
-            possibleToExpand = false;
-            wallRunner++;
-            if(tiles[wallRunner][j].getTileType()== TileModel.TileType.WALL){
-                if(!tiles[wallRunner][j].isAddedToWall()){
-                    tiles[wallRunner][j].setAddedToWall(true);
-                    tiles[wallRunner][j].setHorizontal(false);
-                    possibleToExpand = true;
-                    currentWallSize++;
-                }
-            }
-        }
-        verticalWalls.add(new WallModel(j,i,currentWallSize));
-        System.out.println("Added vertical wall x:" + j + " y:" + i + " Size:" + currentWallSize);
-    }
-
-    private void buildSoloWall(int i, int j) {
-        boolean horizontalCandidate = false;
-        boolean verticalCandidate = false;
-        tiles[i][j].setLeader(true);
-        tiles[i][j].setAddedToWall(true);
-        if (i>0){
-            if(getTopNeighbour(i,j).getTileType() == TileModel.TileType.WALL){
-                if(getTopNeighbour(i,j).isAddedToWall()){
-                    if(getTopNeighbour(i,j).isHorizontal()){
-                        verticalCandidate = true;
-                    }else{
-                        horizontalCandidate = true;
-                    }
-                }
-            }
-        }
-
-        if (j>0){
-            if(getLeftNeighbour(i,j).getTileType() == TileModel.TileType.WALL){
-                if(getLeftNeighbour(i,j).isAddedToWall()){
-                    if(getLeftNeighbour(i,j).isHorizontal()){
-                        verticalCandidate = true;
-                    }else{
-                        horizontalCandidate = true;
-                    }
-                }
-            }
-        }
-
-        if (horizontalCandidate != verticalCandidate){
-            if (horizontalCandidate){
-                tiles[i][j].setHorizontal(true);
-                horizontalWalls.add(new WallModel(j,i,1));
-                System.out.println("Added horizontal wall x:" + j + " y:" + i + " Size:" + 1);
-            }else{
-                tiles[i][j].setHorizontal(false);
-                verticalWalls.add(new WallModel(j,i,1));
-                System.out.println("Added vertical wall x:" + j + " y:" + i + " Size:" + 1);
-            }
-        }
-
-        if (horizontalCandidate == verticalCandidate){
-            Random generator = new Random();
-            int r = generator.nextInt(2);
-            if (r==0){
-                tiles[i][j].setHorizontal(true);
-                horizontalWalls.add(new WallModel(i,j,1));
-                System.out.println("Added horizontal wall x:" + j + " y:" + i + " Size:" + 1);
-            }else{
-                tiles[i][j].setHorizontal(false);
-                verticalWalls.add(new WallModel(i,j,1));
-                System.out.println("Added vertical wall x:" + j + " y:" + i + " Size:" + 1);
-            }
-        }
-    }
-
-    private TileModel getLeftNeighbour(int i, int j) {
-        return tiles[i][j-1];
-    }
-
-    private TileModel getBottomNeighbour(int i, int j) {
-        return tiles[i+1][j];
-    }
-
-    private TileModel getTopNeighbour(int i, int j) {
-        return tiles[i-1][j];
-    }
-
-    private TileModel getRightNeighbour(int i, int j) {
-        return tiles[i][j+1];
-    }
-
-
-    private void convertCodeToTileModel(String levelCode) {
-        int dotPosition = levelCode.indexOf(".");
-        int slashPosition = levelCode.indexOf("/");
-        String levelWidth = levelCode.substring(0, dotPosition);
-        String levelHeight = levelCode.substring(dotPosition +1, slashPosition);
+        int dotPosition = levelCode.indexOf("x");
+        int slashPosition = levelCode.indexOf(":");
+        String levelHeight = levelCode.substring(0, dotPosition);
+        String levelWidth = levelCode.substring(dotPosition +1, slashPosition);
         modelWidth = Integer.valueOf(levelWidth);
         modelHeight = Integer.valueOf(levelHeight);
-        String tileCode = levelCode.substring(slashPosition +1);
-        fillTileModel(tileCode);
+        tileCode = levelCode.substring(slashPosition +1);
+        tileCode.concat(":");
+        int startPos = tileCode.indexOf("s");
+        int endPos = tileCode.indexOf("e");
+        startPosition = new Position(get2DPosition(startPos).getX(),get2DPosition(startPos).getY());
+        endPosition = new Position(get2DPosition(endPos).getX(),get2DPosition(endPos).getY());
+
+//        System.out.println("Starting at X = " + startPosition.getX() + " Y = " + startPosition.getY());
+//        System.out.println("Ending at X = " + endPosition.getX() + " Y = " + endPosition.getY());
+
+        organizeWalls();
 
 
     }
 
-    private void fillTileModel(String tileCode) {
-        int stringRunner = 0;
-        String subString;
-        tiles = new TileModel[modelWidth][modelHeight];
+    private void organizeWalls() {
+        Position tempPos = new Position(0,0);
         for (int i = 0; i < modelHeight; i++){
             for (int j = 0; j < modelWidth; j++){
-                subString = tileCode.substring(stringRunner, stringRunner+1);
-                tiles[i][j] = new TileModel(Integer.valueOf(subString));
-                stringRunner++;
+                tempPos.setX(j);
+                tempPos.setY(i);
+//                System.out.println("X = " + tempPos.getX() + " Y = " + tempPos.getY());
+//                System.out.println("SPOS = " + get1DPosition(tempPos));
+//                System.out.println("--------------------------");
+                if (tileCode.substring(get1DPosition(tempPos),get1DPosition(tempPos)+1).equals("1")){
+                    initializeWall(tempPos);
+                }
             }
         }
+    }
+
+    private void initializeWall(Position tempPos) {
+        Random generator = new Random();
+        int r = generator.nextInt(2);
+        if (r==0){
+            System.out.println("Adding horizontal wall at " + tempPos.getX() + " " + tempPos.getY());
+            horizontalWalls.add(new WallModel(tempPos.getX(),tempPos.getY()));
+        }else{
+            System.out.println("Adding vertical wall at " + tempPos.getX() + " " + tempPos.getY());
+            verticalWalls.add(new WallModel(tempPos.getX(),tempPos.getY()));
+        }
+    }
+
+    private Position get2DPosition(int position){
+
+        int xPos = position % modelWidth;
+        int yPos = position / modelWidth;
+        Position temp = new Position(xPos,yPos);
+        return temp;
+    }
+
+    private int get1DPosition(Position pos2d){
+        int pos = modelWidth * pos2d.getY() + pos2d.getX();
+        return pos;
     }
 
     public ArrayList<WallModel> getHorizontalWalls() {
         return horizontalWalls;
     }
 
+    public void setHorizontalWalls(ArrayList<WallModel> horizontalWalls) {
+        this.horizontalWalls = horizontalWalls;
+    }
+
     public ArrayList<WallModel> getVerticalWalls() {
         return verticalWalls;
     }
 
-    public int getModelWidth() {
-        return modelWidth;
+    public void setVerticalWalls(ArrayList<WallModel> verticalWalls) {
+        this.verticalWalls = verticalWalls;
     }
 
-    public int getModelHeight() {
-        return modelHeight;
+    public Position getStartPosition() {
+        return startPosition;
     }
+
+    public Position getEndPosition() {
+        return endPosition;
+    }
+
 }
