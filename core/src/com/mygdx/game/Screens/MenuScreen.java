@@ -23,6 +23,7 @@ import com.mygdx.game.Models.LevelInfo;
 import java.util.ArrayList;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeOut;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.moveTo;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.run;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.sequence;
@@ -76,7 +77,7 @@ public class MenuScreen implements Screen {
     @Override
     public void render(float delta) {
         update(delta);
-        Gdx.gl.glClearColor(1f,1f,1f,1f);
+        Gdx.gl.glClearColor(0f,0f,0f,1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
     }
@@ -136,20 +137,41 @@ public class MenuScreen implements Screen {
 
     private void bringLevelMenu() {
         inputEnabled = true;
+        levelInfo = new LevelInfo(1,300,200,"some dude", true);
+
+        final Runnable transitionToPlayScreen = new Runnable() {
+            @Override
+            public void run() {
+                menustatus=Menustatus.MAIN_MENU;
+                app.setScreen(app.menuScreen);
+            }
+        };
 
         levelTable = new Table();
-        levelTable.debug();
         levelTable.setSize(stage.getWidth()/2,stage.getHeight());
         levelTable.align(Align.center | Align.top);
         stage.addActor(levelTable);
 
         levelStartButton = new TextButton("START", mySkin);
         levelStartButton.getLabel().setFontScale(4f);
-        levelLabel = new Label("some text",mySkin);
+        levelStartButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                if(inputEnabled){
+                    inputEnabled = false;
+                    removeFamily();
+                    backgroundImage.addAction(fadeOut(0.3f));
+                    levelTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.3f),run(transitionToPlayScreen)));
+                }
+            }
+        });
+
+        levelLabel = new Label(levelInfo.getString(),mySkin);
         levelLabel.setFontScale(4f);
+        levelLabel.setAlignment(Align.center | Align.center);
         levelTable.add(levelLabel).size(600,500).pad(20);
         levelTable.row();
-        levelTable.add(levelStartButton).size(600,100).pad(20);
+        levelTable.add(levelStartButton).size(450,110);
         levelTable.setPosition(stage.getWidth()*1.5f,0f);
 
 
@@ -239,8 +261,13 @@ public class MenuScreen implements Screen {
         familyImage.addAction(moveTo(0,0,1f, Interpolation.pow5Out));
     }
 
+    private void removeFamily(){
+        familyImage.addAction(moveTo(-familyImage.getWidth(),-familyImage.getHeight(), 0.3f, Interpolation.pow5In));
+    }
+
     private void prepareCameraAndInput() {
         inputEnabled = false;
+        menustatus = Menustatus.MAIN_MENU;
         app.camera.position.set(app.WIDTH/2f,app.HEIGHT/2f,0f);
         app.camera.update();
         Gdx.input.setInputProcessor(stage);
@@ -268,9 +295,8 @@ public class MenuScreen implements Screen {
         mainMenuButtonTable.setSize(stage.getWidth()/2,stage.getHeight());
         mainMenuButtonTable.setPosition(stage.getWidth()*1.5f,0f);
         mainMenuButtonTable.align(Align.center | Align.top);
-        mainMenuButtonTable.padTop(100f);
+        mainMenuButtonTable.padTop(150f);
         stage.addActor(mainMenuButtonTable);
-
         playButton1 = new TextButton("PLAY1",mySkin);
         playButton2 = new TextButton("TEMP",mySkin);
         playButton1.getLabel().setFontScale(4);
@@ -286,9 +312,9 @@ public class MenuScreen implements Screen {
             }
         });
 
-        mainMenuButtonTable.add(playButton1).size(450f,150f).padBottom(200f);
+        mainMenuButtonTable.add(playButton1).size(450f,150f).padBottom(100f);
         mainMenuButtonTable.row();
-        mainMenuButtonTable.add(playButton2).size(450f,150f);
+        mainMenuButtonTable.add(playButton2).size(450f,150f).padBottom(100f);;
         mainMenuButtonTable.addAction(sequence(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
     }
 

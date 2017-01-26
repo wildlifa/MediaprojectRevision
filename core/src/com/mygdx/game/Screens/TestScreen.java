@@ -156,10 +156,10 @@ public class TestScreen implements Screen {
             yForce = Gdx.input.getRoll();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
-            app.setScreen(app.menuTestScreen);
+            app.setScreen(app.menuScreen);
         } else {
             if(Gdx.input.justTouched()){
-                app.setScreen(app.menuTestScreen);
+                app.setScreen(app.menuScreen);
             }
         }
     }
