@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.Screens.LoadingScreen;
 import com.mygdx.game.Screens.LogoScreen;
 import com.mygdx.game.Screens.MenuScreen;
-import com.mygdx.game.Screens.MenuTestScreen;
 import com.mygdx.game.Screens.TestScreen;
 
 public class Application extends Game {
@@ -22,7 +21,6 @@ public class Application extends Game {
 	public TestScreen testScreen;
 	public LoadingScreen loadingScreen;
 	public LogoScreen logoScreen;
-	public MenuTestScreen menuTestScreen;
 	public MenuScreen menuScreen;
 
 	public AssetManager assets;
@@ -38,7 +36,6 @@ public class Application extends Game {
 		loadingScreen = new LoadingScreen(this);
 		logoScreen = new LogoScreen(this);
 		menuScreen = new MenuScreen(this);
-		menuTestScreen = new MenuTestScreen(this);
 		testScreen = new TestScreen(this);
 
 		this.setScreen(loadingScreen);
@@ -58,7 +55,6 @@ public class Application extends Game {
 		loadingScreen.dispose();
 		logoScreen.dispose();
 		menuScreen.dispose();
-		menuTestScreen.dispose();
 		font.dispose();
 		assets.dispose();
 	}
