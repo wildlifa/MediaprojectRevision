@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Application;
+import com.mygdx.game.Models.CurrentState;
 import com.mygdx.game.Models.LevelInfo;
 
 import java.util.ArrayList;
@@ -51,12 +52,16 @@ public class MenuScreen implements Screen {
     private ArrayList<TextButton> levelButtons;
     private Label levelLabel;
     private LevelInfo levelInfo;
+    private int lookingAtLvl;
+
+    public CurrentState currentState;
 
 
     private ScrollPane levelScrollPane;
 
     public MenuScreen(final Application app){
-
+        lookingAtLvl = -1;
+        currentState = new CurrentState();
         mySkin = new Skin(Gdx.files.internal("clean-crispy-ui.json"));
         this.app = app;
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
@@ -139,7 +144,7 @@ public class MenuScreen implements Screen {
 
     private void bringLevelMenu() {
         app.inputEnabled = true;
-        levelInfo = new LevelInfo(1,300,200,"some dude", true);
+        levelInfo = new LevelInfo(lookingAtLvl,Integer.parseInt(app.highscoreData[lookingAtLvl]), true);
 
         final Runnable transitionToPlayScreen = new Runnable() {
             @Override
@@ -205,9 +210,13 @@ public class MenuScreen implements Screen {
         levelButtons = new ArrayList<TextButton>();
 
 
-        for (int i=0; i < 20; i++){
+        for (int i=0; i < app.highscoreData.length; i++){
+            if (i < app.currentlyUnlocked){
+                levelButtons.add(new TextButton("L : " + Integer.toString(i),mySkin));
+            } else {
+                levelButtons.add(new TextButton("LL : " + Integer.toString(i),mySkin));
+            }
 
-            levelButtons.add(new TextButton("L : " + Integer.toString(i+1),mySkin));
 
         }
 
@@ -221,6 +230,7 @@ public class MenuScreen implements Screen {
                 public void clicked(InputEvent event, float x, float y){
                     if (app.inputEnabled){
                         System.out.println(index+1);
+                        lookingAtLvl = index;
                         removeSelectMenuBringLevelMenu();
                     }
                 }
@@ -304,9 +314,19 @@ public class MenuScreen implements Screen {
         stage.addActor(mainMenuButtonTable);
 
         playButton1 = new TextButton("PLAY",mySkin);
-        playButton2 = new TextButton("TEMP",mySkin);
+        playButton2 = new TextButton("RESET DATA",mySkin);
         playButton1.getLabel().setFontScale(4);
         playButton2.getLabel().setFontScale(4);
+
+        playButton2.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                if(app.inputEnabled){
+//                    app.inputEnabled = false;
+//                    performDataReset();
+                }
+            }
+        });
 
         playButton1.addListener(new ClickListener(){
             @Override
@@ -323,6 +343,43 @@ public class MenuScreen implements Screen {
         mainMenuButtonTable.add(playButton2).size(450f,150f).padBottom(100f);;
         mainMenuButtonTable.addAction(sequence(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
     }
+
+//    private void performDataReset() {
+//        app.preferences.clear();
+//        app.preferences.flush();
+//
+//        app.file = Gdx.files.internal("level1.txt");
+//        app.lvlCode = app.file.readString();
+//        app.preferences.putString("level1",app.lvlCode);
+//        app.preferences.putInteger("personal1", -10);
+//
+//        app.file = Gdx.files.internal("level2.txt");
+//        app.lvlCode = app.file.readString();
+//        app.preferences.putString("level2",app.lvlCode);
+//        app.preferences.putInteger("personal2", -10);
+//
+//        app.file = Gdx.files.internal("level3.txt");
+//        app.lvlCode = app.file.readString();
+//        app.preferences.putString("level3",app.lvlCode);
+//        app.preferences.putInteger("personal3", -10);
+//
+//        app.file = Gdx.files.internal("level4.txt");
+//        app.lvlCode = app.file.readString();
+//        app.preferences.putString("level4",app.lvlCode);
+//        app.preferences.putInteger("personal4", -10);
+//
+//        app.file = Gdx.files.internal("level5.txt");
+//        app.lvlCode = app.file.readString();
+//        app.preferences.putString("level5",app.lvlCode);
+//        app.preferences.putInteger("personal5", -10);
+//
+//        app.preferences.putInteger("levelUnlock",1);
+//        app.preferences.putInteger("levelCount",5);
+//        app.preferences.putString("playerName","");
+//        app.preferences.flush();
+//        System.out.println("----------------Levels 1-5 initiated");
+//        app.inputEnabled = true;
+//    }
 
     @Override
     public void resize(int width, int height) {

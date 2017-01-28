@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.mygdx.game.Application;
 
 /**
@@ -14,9 +15,13 @@ import com.mygdx.game.Application;
 
 public class LoadingScreen implements Screen {
     private final Application app;
+    private Stage stage;
     public LoadingScreen(final Application app){
         this.app = app;
         queueAssets();
+        this.stage = new Stage();
+        Gdx.input.setCatchBackKey(true);
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -25,7 +30,7 @@ public class LoadingScreen implements Screen {
     }
 
     private void update(float delta){
-        if (app.assets.update()){
+        if (app.assets.update() && app.dataLoadedfromStorage){
             app.setScreen(app.logoScreen);
         }
     }

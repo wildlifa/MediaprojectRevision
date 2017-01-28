@@ -76,7 +76,7 @@ public class LogoScreen implements Screen {
         logoGroup.addActor(logoBottomImage);
 
         logoGroup.addAction(Actions.alpha(0f));
-        logoGroup.addAction(sequence(Actions.fadeIn(1f),delay(2f),Actions.fadeOut(1f),run(transitionToMenuscreen)));
+        logoGroup.addAction(sequence(Actions.fadeIn(1.5f),delay(2f),Actions.fadeOut(2f),run(transitionToMenuscreen)));
 
     }
 

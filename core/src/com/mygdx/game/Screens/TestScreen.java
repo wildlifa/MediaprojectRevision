@@ -56,8 +56,7 @@ public class TestScreen implements Screen {
         this.app = app;
         hud = new Hud(app.batch);
         shouldResetPosition = false;
-        FileHandle file = Gdx.files.internal("kek.txt");
-        String lvlCode = file.readString();
+
 
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
 
@@ -90,7 +89,7 @@ public class TestScreen implements Screen {
 
         b2dr = new Box2DDebugRenderer();
 
-        simpleModel = new SimpleModel(lvlCode);
+        simpleModel = new SimpleModel(app.levelData[0]);
         bochek = new Bochek(simpleModel.getStartX(), simpleModel.getStartY(), this);
         escape = new Escape(simpleModel.getEscapeX(), simpleModel.getEscapeY(), this);
 
