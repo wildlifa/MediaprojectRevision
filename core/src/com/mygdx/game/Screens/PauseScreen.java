@@ -94,13 +94,14 @@ public class PauseScreen implements Screen {
             }
         });
 
-        toMainMenuButton = new TextButton("to MAIN MENU",mySkin);
+        toMainMenuButton = new TextButton("MAIN MENU",mySkin);
         toMainMenuButton.getLabel().setFontScale(4);
         toMainMenuButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){
                 if(app.inputEnabled){
                     app.inputEnabled = false;
+                    app.gameIsNew = true;
                     pauseTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.1f),run(transitionToMenuscreen)));
                     backgroundImage.addAction(fadeOut(0.2f));
                     removeFamily();

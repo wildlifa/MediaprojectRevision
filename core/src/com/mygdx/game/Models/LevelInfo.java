@@ -5,7 +5,11 @@ package com.mygdx.game.Models;
  */
 
 public class LevelInfo {
+
+
     private int levelID;
+
+
     private int personalBestTime;
 //    private int worldBestTime;
 //    private String worldBestPlayer;
@@ -42,5 +46,13 @@ public class LevelInfo {
 //            String tempString = "(LOCKED)\n" + "Level:" + levelID + "\n" + "World Record:\n" + worldBestTime + "\n by " + worldBestPlayer;
 //            return tempString;
 //        }
+    }
+    public int getLevelID() {
+        return levelID;
+    }
+
+
+    public int getPersonalBestTime() {
+        return personalBestTime;
     }
 }

@@ -51,7 +51,7 @@ public class SimpleModel {
                     currentX++;
                     break;
                 default:
-                    System.out.println("Unknown char: " + levelCode.charAt(i));
+                    System.out.println("Unknown char: " + (int)levelCode.charAt(i)+ " at position:" + i);
                     currentX++;
                     break;
             }

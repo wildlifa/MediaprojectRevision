@@ -55,6 +55,9 @@ public class LoadingScreen implements Screen {
         app.assets.load("introBochek.png", Texture.class);
         app.assets.load("introEscape.png", Texture.class);
         app.assets.load("blackBackground.png", Texture.class);
+        app.assets.load("redBall.png", Texture.class);
+        app.assets.load("greenBall.png", Texture.class);
+        app.assets.load("blueBall.png", Texture.class);
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.mygdx.game.Screens.FinishScreen;
 import com.mygdx.game.Screens.LoadingScreen;
 import com.mygdx.game.Screens.LogoScreen;
@@ -44,12 +45,18 @@ public class Application extends Game {
 	public String[] levelData;
 	public String[] highscoreData;
 	public int currentlyUnlocked;
+	public float finishTime;
+	public boolean gameIsNew;
 
 	@Override
 	public void create () {
 		dataLoadedfromStorage = false;
+		gameIsNew = true;
+		finishTime = -30;
+
 		currentlyUnlocked = -10;
 		preferences = Gdx.app.getPreferences(MAIN_STORAGE_LOCATION);
+
 		boolean isConfigured = preferences.getBoolean(CONFIG_NAME,false);
 		if(!isConfigured){
 			configureData();
@@ -80,7 +87,11 @@ public class Application extends Game {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, WIDTH, HEIGHT);
 		batch = new SpriteBatch();
-		font = new BitmapFont();
+
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("myfont.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = 20;
+		font = generator.generateFont(parameter);
 		inputEnabled = false;
 		loadingScreen = new LoadingScreen(this);
 		logoScreen = new LogoScreen(this);
@@ -105,6 +116,13 @@ public class Application extends Game {
 				currentlyUnlocked = preferences.getInteger(UNLOCKED_NAME, -11);
 				dataLoadedfromStorage = true;
 				System.out.println("----------------------------LOADING FINISHED");
+				for (int i = 0; i < levelData.length;i++){
+					System.out.println(levelData[i]);
+				}
+				System.out.println("/////////////////////////////Highscores");
+				for (int i = 0; i < highscoreData.length;i++){
+					System.out.println(highscoreData[i]);
+				}
 			}
 		};
 
@@ -121,7 +139,7 @@ public class Application extends Game {
 		tempString = file.readString();
 		preferences.putString(HIGHSCORE_NAME, tempString);
 
-		preferences.putInteger(UNLOCKED_NAME,1);
+		preferences.putInteger(UNLOCKED_NAME,0);
 		preferences.putBoolean(CONFIG_NAME,true);
 		preferences.flush();
 

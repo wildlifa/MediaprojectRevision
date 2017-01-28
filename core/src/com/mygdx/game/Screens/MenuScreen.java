@@ -5,21 +5,24 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Application;
-import com.mygdx.game.Models.CurrentState;
 import com.mygdx.game.Models.LevelInfo;
 
 import java.util.ArrayList;
@@ -49,19 +52,19 @@ public class MenuScreen implements Screen {
     private Table levelTable;
     private TextButton playButton1, playButton2, levelStartButton;
     private Menustatus menustatus;
-    private ArrayList<TextButton> levelButtons;
+    private ArrayList<ImageTextButton> levelButtons;
     private Label levelLabel;
-    private LevelInfo levelInfo;
-    private int lookingAtLvl;
+    public int lookingAtLvl;
+    public LevelInfo levelInfo;
 
-    public CurrentState currentState;
+
 
 
     private ScrollPane levelScrollPane;
 
     public MenuScreen(final Application app){
+        levelInfo = new LevelInfo(-3,-20,false);
         lookingAtLvl = -1;
-        currentState = new CurrentState();
         mySkin = new Skin(Gdx.files.internal("clean-crispy-ui.json"));
         this.app = app;
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
@@ -144,7 +147,12 @@ public class MenuScreen implements Screen {
 
     private void bringLevelMenu() {
         app.inputEnabled = true;
-        levelInfo = new LevelInfo(lookingAtLvl,Integer.parseInt(app.highscoreData[lookingAtLvl]), true);
+        if (lookingAtLvl > app.currentlyUnlocked){
+            levelInfo = new LevelInfo(lookingAtLvl,Integer.parseInt(app.highscoreData[lookingAtLvl]), false);
+        } else {
+            levelInfo = new LevelInfo(lookingAtLvl,Integer.parseInt(app.highscoreData[lookingAtLvl]), true);
+        }
+
 
         final Runnable transitionToPlayScreen = new Runnable() {
             @Override
@@ -181,7 +189,9 @@ public class MenuScreen implements Screen {
         levelTable.row();
         levelTable.add(levelStartButton).size(450,110);
         levelTable.setPosition(stage.getWidth()*1.5f,0f);
-
+        if (lookingAtLvl > app.currentlyUnlocked){
+            levelStartButton.setVisible(false);
+        }
 
         levelTable.addAction(sequence(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
     }
@@ -206,15 +216,32 @@ public class MenuScreen implements Screen {
     }
 
     private void loadSelectMenuButtons() {
+        System.out.println("data length:"+ app.levelData.length);
+        System.out.println("highscore length:"+ app.highscoreData.length);
+        System.out.println("currently unlocked:"+ app.currentlyUnlocked);
+        System.out.println("------------------------------------");
+        levelButtons = new ArrayList<ImageTextButton>();
 
-        levelButtons = new ArrayList<TextButton>();
+        Drawable redDrawable = new TextureRegionDrawable(new TextureRegion(app.assets.get("redBall.png", Texture.class)));
+        ImageTextButton.ImageTextButtonStyle redButton = new ImageTextButton.ImageTextButtonStyle(redDrawable, redDrawable, redDrawable, app.font);
 
+        Drawable blueDrawable = new TextureRegionDrawable(new TextureRegion(app.assets.get("blueBall.png", Texture.class)));
+        ImageTextButton.ImageTextButtonStyle blueButton = new ImageTextButton.ImageTextButtonStyle(blueDrawable, blueDrawable, blueDrawable, app.font);
 
-        for (int i=0; i < app.highscoreData.length; i++){
-            if (i < app.currentlyUnlocked){
-                levelButtons.add(new TextButton("L : " + Integer.toString(i),mySkin));
+        Drawable greenDrawable = new TextureRegionDrawable(new TextureRegion(app.assets.get("greenBall.png", Texture.class)));
+        ImageTextButton.ImageTextButtonStyle greenButton = new ImageTextButton.ImageTextButtonStyle(greenDrawable, greenDrawable, greenDrawable, app.font);
+
+        for (int i=0; i < app.levelData.length; i++){
+            if (i == app.currentlyUnlocked){
+                levelButtons.add(new ImageTextButton(Integer.toString(i),blueButton));
+
             } else {
-                levelButtons.add(new TextButton("LL : " + Integer.toString(i),mySkin));
+                if (i < app.currentlyUnlocked+1){
+                    levelButtons.add(new ImageTextButton(Integer.toString(i), greenButton));
+                } else {
+                    levelButtons.add(new ImageTextButton(Integer.toString(i), redButton));
+                }
+
             }
 
 
@@ -322,8 +349,8 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y){
                 if(app.inputEnabled){
-//                    app.inputEnabled = false;
-//                    performDataReset();
+                    app.inputEnabled = false;
+                    performDataReset();
                 }
             }
         });
@@ -344,42 +371,16 @@ public class MenuScreen implements Screen {
         mainMenuButtonTable.addAction(sequence(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
     }
 
-//    private void performDataReset() {
-//        app.preferences.clear();
-//        app.preferences.flush();
-//
-//        app.file = Gdx.files.internal("level1.txt");
-//        app.lvlCode = app.file.readString();
-//        app.preferences.putString("level1",app.lvlCode);
-//        app.preferences.putInteger("personal1", -10);
-//
-//        app.file = Gdx.files.internal("level2.txt");
-//        app.lvlCode = app.file.readString();
-//        app.preferences.putString("level2",app.lvlCode);
-//        app.preferences.putInteger("personal2", -10);
-//
-//        app.file = Gdx.files.internal("level3.txt");
-//        app.lvlCode = app.file.readString();
-//        app.preferences.putString("level3",app.lvlCode);
-//        app.preferences.putInteger("personal3", -10);
-//
-//        app.file = Gdx.files.internal("level4.txt");
-//        app.lvlCode = app.file.readString();
-//        app.preferences.putString("level4",app.lvlCode);
-//        app.preferences.putInteger("personal4", -10);
-//
-//        app.file = Gdx.files.internal("level5.txt");
-//        app.lvlCode = app.file.readString();
-//        app.preferences.putString("level5",app.lvlCode);
-//        app.preferences.putInteger("personal5", -10);
-//
-//        app.preferences.putInteger("levelUnlock",1);
-//        app.preferences.putInteger("levelCount",5);
-//        app.preferences.putString("playerName","");
-//        app.preferences.flush();
-//        System.out.println("----------------Levels 1-5 initiated");
-//        app.inputEnabled = true;
-//    }
+    private void performDataReset() {
+
+        app.preferences.clear();
+        app.preferences.flush();
+
+        app.preferences.putBoolean(app.CONFIG_NAME,false);
+        app.preferences.flush();
+        System.out.println("---------------preferences reset ---------------------------------");
+        app.inputEnabled = true;
+    }
 
     @Override
     public void resize(int width, int height) {

@@ -1,12 +1,25 @@
 package com.mygdx.game.Screens;
 
 import com.badlogic.gdx.Screen;
+import com.mygdx.game.Application;
 
 /**
  * Created by andrei on 26.01.2017.
  */
 
 public class PlayScreen implements Screen{
+
+
+    private final Application app;
+    private static final float PPM = 32f;
+
+
+    public PlayScreen(final Application app){
+        this.app = app;
+    }
+
+
+
     @Override
     public void show() {
 

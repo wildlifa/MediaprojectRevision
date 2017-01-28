@@ -11,6 +11,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.Application;
 
+import static com.badlogic.gdx.Gdx.app;
+
 /**
  * Created by andrei on 26.01.2017.
  */
@@ -18,14 +20,15 @@ import com.mygdx.game.Application;
 public class Hud {
     public Stage stage;
     private Viewport viewport;
-    private int timer;
+    int lvlID;
+
     private float timeCount;
 
     Label levelLabel;
     Label timeLabel;
 
-    public Hud(SpriteBatch sb){
-        timer = 300;
+    public Hud(SpriteBatch sb, int lvl){
+        this.lvlID = lvl;
         timeCount = 0;
 
         viewport = new FitViewport(Application.WIDTH, Application.HEIGHT, new OrthographicCamera());
@@ -35,7 +38,7 @@ public class Hud {
         hudTable.top();
         hudTable.setFillParent(true);
 
-        timeLabel = new Label("Time", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        timeLabel = new Label("time", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         timeLabel.setFontScale(6f);
         levelLabel = new Label("LevelID", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         levelLabel.setFontScale(6f);
@@ -44,5 +47,13 @@ public class Hud {
         hudTable.add(timeLabel).pad(50);
 
         stage.addActor(hudTable);
+
     }
+
+
+    public void update(float time, int lvlID){
+        timeLabel.setText(Integer.toString((int)time));
+        levelLabel.setText(Integer.toString(lvlID));
+    }
+
 }

@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Application;
+import com.mygdx.game.Models.LevelInfo;
 
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.delay;
 import static com.badlogic.gdx.scenes.scene2d.actions.Actions.fadeIn;
@@ -47,10 +48,12 @@ public class FinishScreen implements Screen {
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
         mySkin = new Skin(Gdx.files.internal("clean-crispy-ui.json"));
 
+
     }
 
     @Override
     public void show() {
+        unlockNextLvl();
         prepareScreen();
         bringFamily();
         bringScoreMenu();
@@ -96,20 +99,30 @@ public class FinishScreen implements Screen {
 
         nextLevelButton = new TextButton("NEXT LEVEL", mySkin);
         nextLevelButton.getLabel().setFontScale(4);
-
+        if(app.menuScreen.levelInfo.getLevelID()>=app.levelData.length-1){
+            nextLevelButton.setVisible(false);
+        }
         nextLevelButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){
                 if(app.inputEnabled){
                     app.inputEnabled = false;
+                    app.menuScreen.levelInfo = new LevelInfo(app.menuScreen.lookingAtLvl+1,Integer.parseInt(app.highscoreData[app.menuScreen.lookingAtLvl+1]),true);
                     scoreTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.1f),run(transitionToNextLevel)));
                     backgroundImage.addAction(fadeOut(0.2f));
                     removeFamily();
                 }
             }
         });
+        if ((app.finishTime < app.menuScreen.levelInfo.getPersonalBestTime()) || (app.menuScreen.levelInfo.getPersonalBestTime() <= 0))
+        {
+            scoreLabel = new Label("Time - " + Integer.toString((int)app.finishTime)+"\nPersonal Record:\n"+ Integer.toString((int)app.finishTime), mySkin);
+            updateHighscore();
+        } else {
+            scoreLabel = new Label("Time - " + Integer.toString((int)app.finishTime)+"\nPersonal Record:\n"+app.menuScreen.levelInfo.getPersonalBestTime(), mySkin);
+        }
 
-        scoreLabel = new Label("Time - 300\nPersonal Record:\n200\nWorld Record:\n100\nby some dude", mySkin);
+
         scoreLabel.setFontScale(3f);
         scoreLabel.setAlignment(Align.center | Align.center);
 
@@ -121,6 +134,32 @@ public class FinishScreen implements Screen {
         scoreTable.add(nextLevelButton).size(450f,150f).pad(20f);
         scoreTable.addAction(sequence(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
         app.inputEnabled = true;
+    }
+    private void unlockNextLvl(){
+        if (app.menuScreen.levelInfo.getLevelID()>=app.currentlyUnlocked){
+            app.currentlyUnlocked = app.menuScreen.levelInfo.getLevelID() + 1;
+            app.preferences.putInteger(app.UNLOCKED_NAME, app.currentlyUnlocked);
+            app.preferences.flush();
+            System.out.print("just unlocked next lvl /////////////////////////");
+        } else {
+            System.out.print("was unable to unlock anything new because i think the level finished is not the highest unlocked");
+        }
+    }
+
+    private void updateHighscore() {
+        app.highscoreData[app.menuScreen.levelInfo.getLevelID()] = Integer.toString((int)app.finishTime);
+        String tempString = "";
+        for(int i = 0; i < app.highscoreData.length -1;i++){
+            System.out.println(tempString);
+            tempString = tempString + app.highscoreData[i]+"%";
+
+        }
+        tempString = tempString + app.highscoreData[app.highscoreData.length-1];
+
+
+        app.preferences.putString(app.HIGHSCORE_NAME,tempString);
+        app.preferences.flush();
+
     }
 
     private void removeFamily() {

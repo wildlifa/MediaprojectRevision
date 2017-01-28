@@ -3,7 +3,6 @@ package com.mygdx.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
@@ -33,9 +32,9 @@ import static com.badlogic.gdx.Gdx.input;
 public class TestScreen implements Screen {
 
     private static final float PPM = 32f;
-    private final float tempScale = 100.0f;
+
     private final Application app;
-    private boolean shouldResetPosition;
+    private boolean shouldEndStage;
 
     private Hud hud;
 
@@ -51,11 +50,59 @@ public class TestScreen implements Screen {
     private Box2DDebugRenderer b2dr;
 
     private SimpleModel simpleModel;
+    private int lvlID;
+    private float time;
 
     public TestScreen(final Application app){
         this.app = app;
-        hud = new Hud(app.batch);
-        shouldResetPosition = false;
+        prepareLevel();
+
+    }
+
+    private void generateLevel(SimpleModel simpleModel) {
+        for (int i = 0; i < simpleModel.getWallList().size(); i++){
+            walls.add(new Wall(simpleModel.getWallList().get(i).getPositionX(),
+                    simpleModel.getWallList().get(i).getPositionY(),
+                    true,
+                    this)
+            );
+
+        }
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    @Override
+    public void show() {
+
+        if (app.gameIsNew){
+            prepareLevel();
+            app.gameIsNew = false;
+        }
+
+        System.out.println("show Testscreen");
+
+        Gdx.input.setInputProcessor(stage);
+        app.inputEnabled = true;
+        stage.addActor(escape.getImage());
+        stage.addActor(bochek.getImage0());
+        stage.addActor(bochek.getImage1());
+        stage.addActor(bochek.getImage2());
+        stage.addActor(bochek.getImage3());
+
+        for (int i = 0; i <walls.size();i++){
+            stage.addActor(walls.get(i).getImage());
+        }
+
+    }
+
+    private void prepareLevel() {
+        time = 0;
+        lvlID = app.menuScreen.levelInfo.getLevelID();
+        hud = new Hud(app.batch, lvlID);
+        shouldEndStage = false;
 
 
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
@@ -67,7 +114,7 @@ public class TestScreen implements Screen {
             public void beginContact(Contact contact) {
                 if (contact.getFixtureA().getBody().equals(bochek.getBody()) && contact.getFixtureB().getBody().equals(escape.getBody())){
                     System.out.println("collision just happened between bochek and escape");
-                    shouldResetPosition = true;
+                    shouldEndStage = true;
                 }
             }
 
@@ -96,44 +143,7 @@ public class TestScreen implements Screen {
         walls = new ArrayList<Wall>();
         wallTexture = new Texture(Gdx.files.internal("woodTexture.jpg"));
         generateLevel(simpleModel);
-
     }
-
-    private void generateLevel(SimpleModel simpleModel) {
-        for (int i = 0; i < simpleModel.getWallList().size(); i++){
-            walls.add(new Wall(simpleModel.getWallList().get(i).getPositionX(),
-                                simpleModel.getWallList().get(i).getPositionY(),
-                                 true,
-                                 this)
-            );
-
-        }
-    }
-
-    public World getWorld() {
-        return world;
-    }
-
-    @Override
-    public void show() {
-        System.out.println("show Testscreen");
-
-        Gdx.input.setInputProcessor(stage);
-        app.inputEnabled = true;
-        stage.addActor(escape.getImage());
-        stage.addActor(bochek.getImage0());
-        stage.addActor(bochek.getImage1());
-        stage.addActor(bochek.getImage2());
-        stage.addActor(bochek.getImage3());
-
-        for (int i = 0; i <walls.size();i++){
-            stage.addActor(walls.get(i).getImage());
-        }
-
-    }
-
-
-
 
 
     @Override
@@ -172,11 +182,11 @@ public class TestScreen implements Screen {
     public void update(float delta){
 
         handleInput(delta);
-        if (shouldResetPosition){
-//            bochek.getBody().setLinearVelocity(0f,0f);
-//            bochek.getBody().setTransform(simpleModel.getStartX()*tempScale/PPM,simpleModel.getStartY()*tempScale/PPM,0f);
-//            bochek.getBody().setLinearVelocity(0f,0f);
-//            shouldResetPosition = false;
+        time = time + delta;
+        hud.update(time,lvlID);
+        if (shouldEndStage){
+            app.gameIsNew = true;
+            app.finishTime = time;
             app.setScreen(app.finishScreen);
         }
         bochek.update(xForce, yForce, delta);
@@ -204,7 +214,7 @@ public class TestScreen implements Screen {
 
     @Override
     public void hide() {
-        //save current game state
+
     }
 
     @Override
