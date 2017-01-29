@@ -61,7 +61,7 @@ public class PauseScreen implements Screen {
         final Runnable transitionToPlayscreen = new Runnable() {
             @Override
             public void run() {
-                app.setScreen(app.testScreen);
+                app.setScreen(app.playScreen);
             }
         };
 
@@ -102,9 +102,11 @@ public class PauseScreen implements Screen {
                 if(app.inputEnabled){
                     app.inputEnabled = false;
                     app.gameIsNew = true;
+                    resetFriendsStatus();
                     pauseTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.1f),run(transitionToMenuscreen)));
                     backgroundImage.addAction(fadeOut(0.2f));
                     removeFamily();
+                    app.playScreen.getStage().clear();
                 }
             }
         });
@@ -113,6 +115,11 @@ public class PauseScreen implements Screen {
         pauseTable.row();
         pauseTable.add(continueButton).size(450f,150f).padBottom(100f);;
         pauseTable.addAction(sequence(moveTo(stage.getWidth()*0.5f,0f,0.5f, Interpolation.pow5Out)));
+    }
+
+    private void resetFriendsStatus() {
+        app.playScreen.kolobublikIsPickedUp = false;
+        app.playScreen.andreiIsPickedUp = false;
     }
 
     private void removeFamily() {
@@ -184,7 +191,7 @@ public class PauseScreen implements Screen {
         final Runnable transitionToPlayscreen = new Runnable() {
             @Override
             public void run() {
-                app.setScreen(app.testScreen);
+                app.setScreen(app.playScreen);
             }
         };
 

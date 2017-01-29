@@ -9,12 +9,13 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.mygdx.game.Models.LevelInfo;
 import com.mygdx.game.Screens.FinishScreen;
 import com.mygdx.game.Screens.LoadingScreen;
 import com.mygdx.game.Screens.LogoScreen;
 import com.mygdx.game.Screens.MenuScreen;
 import com.mygdx.game.Screens.PauseScreen;
-import com.mygdx.game.Screens.TestScreen;
+import com.mygdx.game.Screens.PlayScreen;
 
 public class Application extends Game {
 
@@ -31,7 +32,7 @@ public class Application extends Game {
 	public SpriteBatch batch;
 	public OrthographicCamera camera;
 	public BitmapFont font;
-	public TestScreen testScreen;
+	public PlayScreen playScreen;
 	public LoadingScreen loadingScreen;
 	public LogoScreen logoScreen;
 	public MenuScreen menuScreen;
@@ -47,6 +48,7 @@ public class Application extends Game {
 	public int currentlyUnlocked;
 	public float finishTime;
 	public boolean gameIsNew;
+
 
 	@Override
 	public void create () {
@@ -88,15 +90,15 @@ public class Application extends Game {
 		camera.setToOrtho(false, WIDTH, HEIGHT);
 		batch = new SpriteBatch();
 
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("myfont.ttf"));
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("myfont2.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		parameter.size = 20;
+		parameter.size = 50;
 		font = generator.generateFont(parameter);
 		inputEnabled = false;
 		loadingScreen = new LoadingScreen(this);
 		logoScreen = new LogoScreen(this);
 		menuScreen = new MenuScreen(this);
-		testScreen = new TestScreen(this);
+		playScreen = new PlayScreen(this);
 		pauseScreen = new PauseScreen(this);
 		finishScreen = new FinishScreen(this);
 
@@ -191,7 +193,7 @@ public class Application extends Game {
 	@Override
 	public void dispose () {
 		batch.dispose();
-		testScreen.dispose();
+		playScreen.dispose();
 		loadingScreen.dispose();
 		logoScreen.dispose();
 		menuScreen.dispose();

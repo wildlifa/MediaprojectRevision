@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.mygdx.game.Screens.TestScreen;
+import com.mygdx.game.Screens.PlayScreen;
 
 
 /**
@@ -18,8 +18,8 @@ import com.mygdx.game.Screens.TestScreen;
 
 public class Bochek {
     private static final float PPM = 32f;
-    private final float tempScale = 100.0f;
-    private final TestScreen screen;
+    private final static float tempScale = 100.0f;
+    private final PlayScreen screen;
     private Texture texture;
     private Image image0, image1, image2, image3;
     private Body body;
@@ -33,7 +33,7 @@ public class Bochek {
 
 
 
-    public Bochek(float x, float y, final TestScreen screen) {
+    public Bochek(float x, float y, final PlayScreen screen) {
         this.screen = screen;
         frameCount = 4;
         maxFrameTime = 1f;
@@ -99,7 +99,7 @@ public class Bochek {
 
     public void update(float xForce, float yForce, float delta){
         leftUntilRotation = leftUntilRotation - delta;
-        body.setLinearVelocity(body.getLinearVelocity().add(xForce/1.5f/PPM,yForce/1.5f/PPM));
+        body.setLinearVelocity(body.getLinearVelocity().add(xForce/1.4f/PPM,yForce/1.4f/PPM));
         runAnimation(delta);
 
         image0.addAction(Actions.moveTo(body.getPosition().x*PPM, body.getPosition().y*PPM));
@@ -116,7 +116,7 @@ public class Bochek {
             image1.addAction(Actions.rotateTo(90f+getAngleFromForces(xForce, yForce)));
             image2.addAction(Actions.rotateTo(90f+getAngleFromForces(xForce, yForce)));
             image3.addAction(Actions.rotateTo(90f+getAngleFromForces(xForce, yForce)));
-            leftUntilRotation = 0.05f;
+            leftUntilRotation = 0.04f;
         }
 
     }
@@ -125,7 +125,7 @@ public class Bochek {
 
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;
-        def.position.set(x/PPM, y/PPM);
+        def.position.set((x+50.f)/PPM, (y+50.f)/PPM);
         def.fixedRotation = true;
 
         Body pBody = screen.getWorld().createBody(def);

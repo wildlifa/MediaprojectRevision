@@ -60,11 +60,12 @@ public class MenuScreen implements Screen {
 
 
 
+
     private ScrollPane levelScrollPane;
 
     public MenuScreen(final Application app){
-        levelInfo = new LevelInfo(-3,-20,false);
-        lookingAtLvl = -1;
+        lookingAtLvl = 0;
+        levelInfo = new LevelInfo(lookingAtLvl,-10,true);
         mySkin = new Skin(Gdx.files.internal("clean-crispy-ui.json"));
         this.app = app;
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
@@ -158,7 +159,7 @@ public class MenuScreen implements Screen {
             @Override
             public void run() {
                 menustatus=Menustatus.MAIN_MENU;
-                app.setScreen(app.testScreen);
+                app.setScreen(app.playScreen);
             }
         };
 
@@ -222,13 +223,14 @@ public class MenuScreen implements Screen {
         System.out.println("------------------------------------");
         levelButtons = new ArrayList<ImageTextButton>();
 
-        Drawable redDrawable = new TextureRegionDrawable(new TextureRegion(app.assets.get("redBall.png", Texture.class)));
+
+        Drawable redDrawable = new TextureRegionDrawable(new TextureRegion(app.assets.get("redWood2.png", Texture.class)));
         ImageTextButton.ImageTextButtonStyle redButton = new ImageTextButton.ImageTextButtonStyle(redDrawable, redDrawable, redDrawable, app.font);
 
-        Drawable blueDrawable = new TextureRegionDrawable(new TextureRegion(app.assets.get("blueBall.png", Texture.class)));
+        Drawable blueDrawable = new TextureRegionDrawable(new TextureRegion(app.assets.get("blueWood2.png", Texture.class)));
         ImageTextButton.ImageTextButtonStyle blueButton = new ImageTextButton.ImageTextButtonStyle(blueDrawable, blueDrawable, blueDrawable, app.font);
 
-        Drawable greenDrawable = new TextureRegionDrawable(new TextureRegion(app.assets.get("greenBall.png", Texture.class)));
+        Drawable greenDrawable = new TextureRegionDrawable(new TextureRegion(app.assets.get("greenWood2.png", Texture.class)));
         ImageTextButton.ImageTextButtonStyle greenButton = new ImageTextButton.ImageTextButtonStyle(greenDrawable, greenDrawable, greenDrawable, app.font);
 
         for (int i=0; i < app.levelData.length; i++){
@@ -251,7 +253,6 @@ public class MenuScreen implements Screen {
 
         for (int i=0; i < levelButtons.size(); i++){
             final int index = i;
-            levelButtons.get(i).getLabel().setFontScale(4);
             levelButtons.get(i).addListener(new ClickListener(){
                 @Override
                 public void clicked(InputEvent event, float x, float y){
@@ -380,6 +381,28 @@ public class MenuScreen implements Screen {
         app.preferences.flush();
         System.out.println("---------------preferences reset ---------------------------------");
         app.inputEnabled = true;
+    }
+
+    private String getDurationString(int seconds) {
+
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        seconds = seconds % 60;
+
+        return twoDigitString(hours) + " : " + twoDigitString(minutes) + " : " + twoDigitString(seconds);
+    }
+
+    private String twoDigitString(int number) {
+
+        if (number == 0) {
+            return "00";
+        }
+
+        if (number / 10 == 0) {
+            return "0" + number;
+        }
+
+        return String.valueOf(number);
     }
 
     @Override

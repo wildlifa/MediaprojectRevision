@@ -1,6 +1,7 @@
 package com.mygdx.game.Screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -71,7 +72,7 @@ public class FinishScreen implements Screen {
         final Runnable transitionToNextLevel = new Runnable() {
             @Override
             public void run() {
-                app.setScreen(app.testScreen);
+                app.setScreen(app.playScreen);
             }
         };
 
@@ -90,6 +91,7 @@ public class FinishScreen implements Screen {
             public void clicked(InputEvent event, float x, float y){
                 if(app.inputEnabled){
                     app.inputEnabled = false;
+                    resetFriendsStatus();
                     scoreTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.1f),run(transitionToMenuscreen)));
                     backgroundImage.addAction(fadeOut(0.2f));
                     removeFamily();
@@ -107,6 +109,7 @@ public class FinishScreen implements Screen {
             public void clicked(InputEvent event, float x, float y){
                 if(app.inputEnabled){
                     app.inputEnabled = false;
+                    resetFriendsStatus();
                     app.menuScreen.levelInfo = new LevelInfo(app.menuScreen.lookingAtLvl+1,Integer.parseInt(app.highscoreData[app.menuScreen.lookingAtLvl+1]),true);
                     scoreTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.1f),run(transitionToNextLevel)));
                     backgroundImage.addAction(fadeOut(0.2f));
@@ -135,6 +138,12 @@ public class FinishScreen implements Screen {
         scoreTable.addAction(sequence(moveTo(stage.getWidth()/2,0f,0.5f, Interpolation.pow5Out)));
         app.inputEnabled = true;
     }
+
+    private void resetFriendsStatus() {
+        app.playScreen.kolobublikIsPickedUp = false;
+        app.playScreen.andreiIsPickedUp = false;
+    }
+
     private void unlockNextLvl(){
         if (app.menuScreen.levelInfo.getLevelID()>=app.currentlyUnlocked){
             app.currentlyUnlocked = app.menuScreen.levelInfo.getLevelID() + 1;
@@ -183,6 +192,28 @@ public class FinishScreen implements Screen {
         andreiBearImage.addAction(Actions.moveTo(-0, 0,0.4f));
     }
 
+    private String getDurationString(int seconds) {
+
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        seconds = seconds % 60;
+
+        return twoDigitString(hours) + " : " + twoDigitString(minutes) + " : " + twoDigitString(seconds);
+    }
+
+    private String twoDigitString(int number) {
+
+        if (number == 0) {
+            return "00";
+        }
+
+        if (number / 10 == 0) {
+            return "0" + number;
+        }
+
+        return String.valueOf(number);
+    }
+
     private void prepareScreen() {
         app.inputEnabled = false;
         app.camera.position.set(app.WIDTH/2f,app.HEIGHT/2f,0f);
@@ -206,6 +237,22 @@ public class FinishScreen implements Screen {
     }
 
     private void handleInput(float delta) {
+
+        final Runnable transitionToMenuscreen = new Runnable() {
+            @Override
+            public void run() {
+                app.setScreen(app.menuScreen);
+            }
+        };
+
+        if(app.inputEnabled && Gdx.input.isKeyJustPressed(Input.Keys.BACK)){
+            app.inputEnabled = false;
+            resetFriendsStatus();
+            scoreTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.1f),run(transitionToMenuscreen)));
+            backgroundImage.addAction(fadeOut(0.2f));
+            removeFamily();
+
+        }
     }
 
     @Override

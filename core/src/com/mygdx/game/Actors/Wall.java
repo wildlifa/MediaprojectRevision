@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.mygdx.game.Screens.TestScreen;
+import com.mygdx.game.Screens.PlayScreen;
 
 import java.util.Random;
 
@@ -22,11 +22,11 @@ public class Wall {
     private final float tempScale = 100.0f;
     private static final float PPM = 32f;
     private Body body;
-    private final TestScreen screen;
+    private final PlayScreen screen;
     private Image image;
     private TextureRegion textureRegion;
 
-    public Wall(float posX, float posY, boolean isHorizontal, final TestScreen screen){
+    public Wall(float posX, float posY, boolean isHorizontal, final PlayScreen screen){
         this.screen = screen;
 
         this.positionX = posX*tempScale;

@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.mygdx.game.Screens.TestScreen;
+import com.mygdx.game.Screens.PlayScreen;
 
 /**
  * Created by andrei on 24.01.2017.
@@ -15,13 +15,13 @@ import com.mygdx.game.Screens.TestScreen;
 
 public class Escape {
     private static final float PPM = 32f;
-    private final float tempScale = 100.0f;
-    private final TestScreen screen;
+    private final static float tempScale = 100.0f;
+    private final PlayScreen screen;
     private Texture texture;
     private Image image;
     private Body body;
 
-    public Escape(float x, float y, final TestScreen screen) {
+    public Escape(float x, float y, final PlayScreen screen) {
         this.screen = screen;
         body = createEscapeBody(x*tempScale, y*tempScale);
         texture = new Texture(Gdx.files.internal("escape.png"));
@@ -40,9 +40,6 @@ public class Escape {
         return body;
     }
 
-    public void update(){
-
-    }
 
     private Body createEscapeBody(float x, float y) {
 
