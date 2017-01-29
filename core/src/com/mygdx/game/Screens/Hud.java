@@ -32,7 +32,7 @@ public class Hud {
     private Texture kolobublikSilTexture, hriushaSilTexture, andreiBearSilTexture;
     private Image kolobublikSilImage, hriushaSilImage, andreiBearSilImage;
 
-    private Texture kolobublikTexture;
+    private Texture kolobublikTexture, andreiBearTexture, hriushaTexture;
 
 
     private BitmapFont font;
@@ -56,6 +56,8 @@ public class Hud {
         this.stage = new Stage(viewport, sb);
 
         kolobublikTexture = new Texture(Gdx.files.internal("kolobublik.png"));
+        andreiBearTexture = new Texture(Gdx.files.internal("andreiBearFace.png"));
+        hriushaTexture = new Texture(Gdx.files.internal("hriusha.png"));
 
         kolobublikSilTexture = new Texture(Gdx.files.internal("kolobublikSil.png"));
         andreiBearSilTexture = new Texture(Gdx.files.internal("andreiBearSil.png"));
@@ -148,6 +150,18 @@ public class Hud {
     }
 
     public void playAndreiBearPickupAnimation() {
-      //  TODO !!!
+        Image andreiBearImage = new Image(andreiBearTexture);
+        andreiBearImage.setSize(104f,80f);
+        stage.addActor(andreiBearImage);
+        andreiBearImage.setPosition(stage.getWidth()/2,stage.getHeight()/2);
+        andreiBearImage.addAction(Actions.moveTo(620f,stage.getHeight()-100f,0.3f));
+    }
+
+    public void playHriushaPickupAnimation() {
+        Image hriushaImage = new Image(hriushaTexture);
+        hriushaImage.setSize(63f,80f);
+        stage.addActor(hriushaImage);
+        hriushaImage.setPosition(stage.getWidth()/2,stage.getHeight()/2);
+        hriushaImage.addAction(Actions.moveTo(820f,stage.getHeight()-100f,0.3f));
     }
 }

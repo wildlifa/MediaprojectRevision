@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Actors.AndreiBear;
 import com.mygdx.game.Actors.Bochek;
 import com.mygdx.game.Actors.Escape;
+import com.mygdx.game.Actors.Hriusha;
 import com.mygdx.game.Actors.Kolobublik;
 import com.mygdx.game.Actors.Wall;
 import com.mygdx.game.Application;
@@ -40,11 +41,13 @@ public class PlayScreen implements Screen {
     private boolean timeToVerifyEscape;
     private boolean performKolobublikPickup;
     private boolean performAndreiPickup;
+    private boolean performHriushaPickup;
 
     private Hud hud;
 
     public boolean kolobublikIsPickedUp;
     public boolean andreiIsPickedUp;
+    public boolean hriushaIsPickedUp;
 
     private Stage stage;
     public Texture wallTexture;
@@ -53,6 +56,7 @@ public class PlayScreen implements Screen {
     private Bochek bochek;
     private Kolobublik kolobublik;
     private AndreiBear andreiBear;
+    private Hriusha hriusha;
     private Escape escape;
 
     private World world;
@@ -67,6 +71,7 @@ public class PlayScreen implements Screen {
         this.app = app;
         kolobublikIsPickedUp = false;
         andreiIsPickedUp = false;
+        hriushaIsPickedUp = false;
         prepareLevel();
 
 
@@ -95,8 +100,8 @@ public class PlayScreen implements Screen {
             app.gameIsNew = false;
         }
 
-        System.out.println("show Testscreen");
-        System.out.println("kolobublik is picked up = " + kolobublikIsPickedUp + "----------------");
+        System.out.println("showing Playscreen");
+
 
         Gdx.input.setInputProcessor(stage);
         app.inputEnabled = true;
@@ -111,6 +116,13 @@ public class PlayScreen implements Screen {
                 stage.addActor(andreiBear.getImage());
             }
         }
+
+        if (hriusha!=null){
+            if (!hriushaIsPickedUp){
+                stage.addActor(hriusha.getImage());
+            }
+        }
+
 
         stage.addActor(escape.getImage());
         stage.addActor(bochek.getImage0());
@@ -129,8 +141,10 @@ public class PlayScreen implements Screen {
         lvlID = app.menuScreen.levelInfo.getLevelID();
         hud = new Hud(app.batch, lvlID);
         timeToVerifyEscape = false;
+
         performKolobublikPickup = false;
         performAndreiPickup = false;
+        performHriushaPickup = false;
 
 
         this.stage = new Stage(new FitViewport(app.WIDTH,app.HEIGHT, app.camera));
@@ -152,6 +166,11 @@ public class PlayScreen implements Screen {
                 if (contact.getFixtureA().getBody().equals(bochek.getBody()) && contact.getFixtureB().getBody().equals(andreiBear.getBody())){
                     System.out.println("collision just happened between bochek and andreiBear");
                     performAndreiPickup = true;
+                }
+
+                if (contact.getFixtureA().getBody().equals(bochek.getBody()) && contact.getFixtureB().getBody().equals(hriusha.getBody())){
+                    System.out.println("collision just happened between bochek and hriusha");
+                    performHriushaPickup = true;
                 }
             }
 
@@ -183,6 +202,10 @@ public class PlayScreen implements Screen {
 
         if(!andreiIsPickedUp) {
             andreiBear = new AndreiBear(levelModel.getAndreiX(), levelModel.getAndreiY(), this);
+        }
+
+        if(!hriushaIsPickedUp) {
+            hriusha = new Hriusha(levelModel.getHriushaX(), levelModel.getHriushaY(), this);
         }
 
         walls = new ArrayList<Wall>();
@@ -247,17 +270,28 @@ public class PlayScreen implements Screen {
             performAndreiPickup = false;
         }
 
+        if (performHriushaPickup){
+            System.out.println("picked up hriusha the pig!------------------");
+            world.destroyBody(hriusha.getBody());
+            hriusha.getImage().addAction(Actions.removeActor());
+            hud.playHriushaPickupAnimation();
+            hriushaIsPickedUp = true;
+            performHriushaPickup = false;
+        }
+
         if (timeToVerifyEscape){
             if (allFriendsPickedUp()){
                 app.gameIsNew = true;
                 app.finishTime = time;
                 kolobublikIsPickedUp = false;
                 andreiIsPickedUp = false;
+                hriushaIsPickedUp = false;
                 app.setScreen(app.finishScreen);
 
             } else {
                 System.out.println("Kolobublik picked up = " + kolobublikIsPickedUp);
                 System.out.println("andreiBear picked up = " + andreiIsPickedUp);
+                System.out.println("hriusha the pig picked up = " + hriushaIsPickedUp);
                 //  show on the screen somehow that a friend(s) is missing
                 hud.playMissingAnimation();
             }
@@ -269,6 +303,9 @@ public class PlayScreen implements Screen {
         if (andreiBear!=null){
             andreiBear.getImage().addAction(Actions.rotateBy(1f));
         }
+        if (hriusha!=null){
+            hriusha.getImage().addAction(Actions.rotateBy(1f));
+        }
 
         bochek.update(xForce, yForce, delta);
         app.camera.position.set(bochek.getBody().getPosition().x*PPM, bochek.getBody().getPosition().y*PPM,0f);
@@ -279,7 +316,7 @@ public class PlayScreen implements Screen {
     }
 
     private boolean allFriendsPickedUp() {
-        if (kolobublikIsPickedUp && andreiIsPickedUp){
+        if (kolobublikIsPickedUp && andreiIsPickedUp&&hriushaIsPickedUp){
             return true;
         }
         return false;
@@ -320,6 +357,7 @@ public class PlayScreen implements Screen {
         bochek.dispose();
         kolobublik.dispose();
         andreiBear.dispose();
+        hriusha.dispose();
         stage.dispose();
         escape.dispose();
         hud.dispose();

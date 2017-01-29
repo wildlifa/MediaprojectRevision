@@ -14,6 +14,9 @@ public class LevelModel {
     private int escapeX, escapeY;
     private int koloX, koloY;
     private int andreiX, andreiY;
+
+
+    private int hriushaX, hriushaY;
     private int currentX, currentY;
 
     public LevelModel(String levelCode){
@@ -42,6 +45,11 @@ public class LevelModel {
                 case 97:
                     andreiX = currentX;
                     andreiY = currentY;
+                    currentX++;
+                    break;
+                case 104:
+                    hriushaX = currentX;
+                    hriushaY = currentY;
                     currentX++;
                     break;
                 case 61:
@@ -100,6 +108,15 @@ public class LevelModel {
 
     public int getAndreiX() {
         return andreiX;
+    }
+
+
+    public int getHriushaX() {
+        return hriushaX;
+    }
+
+    public int getHriushaY() {
+        return hriushaY;
     }
     public ArrayList<WallModel> getWallList() {
         return wallList;

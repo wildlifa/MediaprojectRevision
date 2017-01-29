@@ -142,6 +142,7 @@ public class FinishScreen implements Screen {
     private void resetFriendsStatus() {
         app.playScreen.kolobublikIsPickedUp = false;
         app.playScreen.andreiIsPickedUp = false;
+        app.playScreen.hriushaIsPickedUp = false;
     }
 
     private void unlockNextLvl(){
