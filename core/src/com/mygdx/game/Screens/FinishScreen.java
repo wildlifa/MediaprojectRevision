@@ -110,7 +110,8 @@ public class FinishScreen implements Screen {
                 if(app.inputEnabled){
                     app.inputEnabled = false;
                     resetFriendsStatus();
-                    app.menuScreen.levelInfo = new LevelInfo(app.menuScreen.lookingAtLvl+1,Integer.parseInt(app.highscoreData[app.menuScreen.lookingAtLvl+1]),true);
+                    app.menuScreen.lookingAtLvl = app.menuScreen.levelInfo.getLevelID()+1;
+                    app.menuScreen.levelInfo = new LevelInfo(app.menuScreen.lookingAtLvl,Integer.parseInt(app.highscoreData[app.menuScreen.lookingAtLvl]),true);
                     scoreTable.addAction(sequence(moveTo(stage.getWidth()*1.5f,0f,0.3f, Interpolation.pow5In),delay(0.1f),run(transitionToNextLevel)));
                     backgroundImage.addAction(fadeOut(0.2f));
                     removeFamily();
